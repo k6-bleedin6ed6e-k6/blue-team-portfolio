@@ -1,0 +1,21 @@
+title: DNS Tunneling Detection via NextDNS
+id: det-001
+status: experimental
+description: Detects potential DNS tunneling using query length and volume analysis
+author: kwasikontor45
+date: 2026/04/02
+tags:
+  - attack.command_and_control
+  - attack.t1071.004
+logsource:
+  category: dns
+  product: nextdns
+detection:
+  selection:
+    query_length|gt: 50
+  condition: selection
+falsepositives:
+  - CDN services with long domain names
+  - Legitimate DDNS providers
+  - Cloud storage services
+level: high

@@ -1,0 +1,12 @@
+| index=nextdns
+| eval domain_length=len(domain)
+| eval subdomain=mvindex(split(domain,"."),0)
+| eval subdomain_length=len(subdomain)
+| where domain_length > 50 OR subdomain_length > 30
+| bin _time span=5m
+| stats count as queries, dc(domain) as unique_domains, 
+        avg(domain_length) as avg_length by _time, client_ip
+| where queries > 20 OR unique_domains > 15
+| eval severity=case(queries>50,"CRITICAL", queries>20,"HIGH", 1=1,"MEDIUM")
+| table _time, client_ip, queries, unique_domains, avg_length, severity
+| sort - severity
