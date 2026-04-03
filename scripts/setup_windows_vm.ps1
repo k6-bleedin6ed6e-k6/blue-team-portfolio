@@ -49,3 +49,10 @@ Set-Service SplunkForwarder -StartupType Automatic
 
 Write-Host "Setup complete! Install splunkclouduf.spl credentials next." -ForegroundColor Green
 Write-Host "Then create 'windows' index in Splunk Cloud." -ForegroundColor Green
+
+# 5. Grant Event Log Readers permission (required for Sysmon on Windows Server 2022)
+Write-Host "[5/5] Granting Event Log Readers permission..." -ForegroundColor Yellow
+net localgroup "Event Log Readers" "NT SERVICE\SplunkForwarder" /add
+Restart-Service SplunkForwarder
+
+Write-Host "All done. Sysmon events should appear in Splunk within 60 seconds." -ForegroundColor Green
