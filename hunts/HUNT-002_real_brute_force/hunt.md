@@ -36,3 +36,12 @@ index=linux sourcetype=linux_secure earliest=-15m
 ## Lessons Learned
 Honeypot was discovered and attacked within hours of deployment.
 Real attacker traffic provides better detection validation than simulated attacks.
+
+## Threat Intel Enrichment
+- **AbuseIPDB:** 247 reports, 0% confidence
+- **ISP:** Microsoft Corporation (Azure Data Center)
+- **ASN:** AS8075
+- **Assessment:** Likely compromised Azure VM or automated scanner
+  running from within Azure infrastructure
+- **Lesson:** Cloud provider IPs are commonly abused — confidence
+  scores alone are insufficient for blocking decisions
