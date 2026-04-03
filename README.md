@@ -18,7 +18,7 @@
 
 <img width="687" height="449" alt="lovelace-dna-protocol" src="https://github.com/user-attachments/assets/a90b9c2d-593a-4e55-bbf6-078e14f497bd" />
 
-### Certifications In Progress
-- Splunk Core Certified User
-- Microsoft SC-900
-- CompTIA Security+
+  ### Certifications In Progress
+  - Splunk Core Certified User
+  - Microsoft SC-900
+  - CompTIA Security+
