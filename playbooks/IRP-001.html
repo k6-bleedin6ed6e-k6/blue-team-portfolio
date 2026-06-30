@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IRP-001 // DNS Tunneling Alert Response</title>
+  <link rel="icon" type="image/png" href="https://kontor.studio/arc-pine.png">
+  <style>
+    :root{--bg:#080809;--surface:#0d0d12;--ph:#c8f563;--ph-dim:rgba(200,245,99,0.45);--ph-faint:rgba(200,245,99,0.18);--text:rgba(200,245,99,0.8);--border:rgba(200,245,99,0.1);--bdr-hot:rgba(200,245,99,0.22);--teal:#5ec8ed;--teal-dim:rgba(94,200,237,0.35);--teal-bg:rgba(94,200,237,0.06);--gold:rgba(246,193,119,0.75);--gold-dim:rgba(246,193,119,0.2);--rose:#ea9a97;--rose-dim:rgba(234,154,151,0.2);}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    html,body{background:var(--bg);color:var(--text);font-family:'Courier New',Courier,monospace;font-size:13px;line-height:1.6;min-height:100vh;}
+    a{color:inherit;text-decoration:none;}
+    .wrap{max-width:820px;margin:0 auto;padding:28px 24px 80px;}
+    .sysbar{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:36px;flex-wrap:wrap;gap:10px;}
+    .sys-l{display:flex;align-items:center;gap:14px;}
+    .back{font-size:10px;letter-spacing:1.5px;color:var(--ph-dim);transition:color .2s;}.back:hover{color:var(--ph);}
+    .sys-mark{font-size:10px;letter-spacing:2px;color:var(--ph-faint);}
+    .art-id{font-size:10px;letter-spacing:3px;color:var(--teal);margin-bottom:8px;}
+    .art-title{font-size:clamp(16px,3vw,22px);letter-spacing:3px;color:var(--ph);text-transform:uppercase;margin-bottom:12px;}
+    .art-badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+    .badge{font-size:8px;letter-spacing:2px;padding:3px 10px;border:1px solid;}
+    .b-filed{color:var(--ph-faint);border-color:var(--border);}
+    .b-high{color:var(--rose);border-color:var(--rose-dim);}
+    .meta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-bottom:36px;}
+    .meta-cell{border:1px solid var(--border);padding:10px 14px;background:var(--surface);}
+    .meta-key{font-size:8px;letter-spacing:2px;color:var(--ph-faint);text-transform:uppercase;margin-bottom:4px;}
+    .meta-val{font-size:11px;color:var(--text);letter-spacing:.5px;}
+    .section{margin-bottom:36px;}
+    .sec-head{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+    .sec-label{font-size:9px;letter-spacing:3px;color:var(--ph-dim);white-space:nowrap;}
+    .sec-line{flex:1;height:1px;background:var(--border);}
+    .phase-block{border:1px solid var(--border);padding:18px 20px;background:var(--surface);margin-bottom:12px;}
+    .phase-title{font-size:10px;letter-spacing:2px;color:var(--teal);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+    .phase-title span{color:var(--ph-faint);margin-left:8px;}
+    .step-list{list-style:none;padding:0;}
+    .step-list li{font-size:11px;color:var(--ph-dim);padding:5px 0;border-bottom:1px solid rgba(200,245,99,0.04);display:flex;gap:10px;align-items:flex-start;}
+    .step-list li:last-child{border-bottom:none;}
+    .step-n{color:var(--teal);font-size:9px;letter-spacing:1px;min-width:20px;margin-top:2px;}
+    .code-block{background:#050508;border:1px solid var(--border);padding:14px 18px;overflow-x:auto;margin:10px 0;}
+    pre{font-family:'Courier New',Courier,monospace;font-size:11px;line-height:1.7;white-space:pre;}
+    .spl-kw{color:#5ec8ed;}.spl-fn{color:#f6c177;}.spl-str{color:rgba(200,245,99,0.55);}.spl-num{color:#ea9a97;}
+    .timeline{display:flex;gap:0;margin-bottom:8px;}
+    .tl-seg{flex:1;text-align:center;padding:10px 4px;border:1px solid var(--border);border-right:none;background:var(--surface);}
+    .tl-seg:last-child{border-right:1px solid var(--border);}
+    .tl-n{font-size:14px;color:var(--ph);letter-spacing:1px;}
+    .tl-u{font-size:8px;color:var(--ph-faint);letter-spacing:1.5px;}
+    .tl-l{font-size:8px;color:var(--teal);letter-spacing:1px;margin-top:2px;}
+    .footer{border-top:1px solid var(--border);padding-top:16px;display:flex;justify-content:space-between;font-size:9px;color:var(--ph-faint);letter-spacing:1px;}
+    .footer a:hover{color:var(--ph-dim);}
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="sysbar">
+    <div class="sys-l">
+      <a class="back" href="../index.html">← back</a>
+      <span class="sys-mark">playbooks / IRP-001</span>
+    </div>
+    <span id="phase-label" style="font-size:9px;letter-spacing:1.5px;"></span>
+  </div>
+
+  <div style="margin-bottom:32px;">
+    <div class="art-id">IRP-001</div>
+    <div class="art-title">DNS Tunneling Alert Response</div>
+    <div class="art-badges">
+      <span class="badge b-high">SEVERITY: HIGH</span>
+      <span class="badge b-filed">FILED</span>
+    </div>
+  </div>
+
+  <div class="meta-grid">
+    <div class="meta-cell"><div class="meta-key">Detection</div><div class="meta-val"><a href="../detections/DET-001.html" style="color:var(--teal);">DET-001 → DNS Tunneling</a></div></div>
+    <div class="meta-cell"><div class="meta-key">Severity</div><div class="meta-val" style="color:var(--rose);">High</div></div>
+    <div class="meta-cell"><div class="meta-key">SLA</div><div class="meta-val">30 minutes total</div></div>
+    <div class="meta-cell"><div class="meta-key">Author</div><div class="meta-val">kwasikontor45</div></div>
+  </div>
+
+  <!-- SLA Timeline -->
+  <div class="section">
+    <div class="sec-head"><span class="sec-label">[ SLA breakdown ]</span><div class="sec-line"></div></div>
+    <div class="timeline">
+      <div class="tl-seg"><div class="tl-n">5</div><div class="tl-u">min</div><div class="tl-l">TRIAGE</div></div>
+      <div class="tl-seg"><div class="tl-n">15</div><div class="tl-u">min</div><div class="tl-l">INVESTIGATE</div></div>
+      <div class="tl-seg"><div class="tl-n">5</div><div class="tl-u">min</div><div class="tl-l">CONTAIN</div></div>
+      <div class="tl-seg"><div class="tl-n">5</div><div class="tl-u">min</div><div class="tl-l">RECOVER</div></div>
+    </div>
+  </div>
+
+  <!-- Phase 1: Triage -->
+  <div class="section">
+    <div class="sec-head"><span class="sec-label">[ phase 1 · triage ]</span><div class="sec-line"></div></div>
+    <div class="phase-block">
+      <div class="phase-title">initial triage <span>// 5 minutes</span></div>
+      <ul class="step-list">
+        <li><span class="step-n">01</span><div>Verify alert in Splunk — confirm client_ip and domain volume
+          <div class="code-block"><pre><span class="spl-kw">index</span>=nextdns client_ip=&lt;ALERT_IP&gt;
+<span class="spl-kw">| stats</span> <span class="spl-fn">count</span> by domain
+<span class="spl-kw">| sort</span> - count
+<span class="spl-kw">| head</span> <span class="spl-num">20</span></pre></div>
+        </div></li>
+        <li><span class="step-n">02</span><div>Check if IP is a known device (phone, laptop, tablet) against NextDNS client name registry</div></li>
+        <li><span class="step-n">03</span><div>If known-good device → close as false positive and tune DET-001 threshold. Document the FP.</div></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Phase 2: Investigate -->
+  <div class="section">
+    <div class="sec-head"><span class="sec-label">[ phase 2 · investigate ]</span><div class="sec-line"></div></div>
+    <div class="phase-block">
+      <div class="phase-title">investigation <span>// 15 minutes</span></div>
+      <ul class="step-list">
+        <li><span class="step-n">01</span><div>Identify device by cross-referencing NextDNS client name with known inventory</div></li>
+        <li><span class="step-n">02</span><div>Submit top domains to VirusTotal — look for known C2 infrastructure
+          <div class="code-block"><pre><span class="spl-kw">index</span>=nextdns client_ip=&lt;ALERT_IP&gt;
+<span class="spl-kw">| stats</span> <span class="spl-fn">count</span>, <span class="spl-fn">avg</span>(<span class="spl-fn">len</span>(domain)) as avg_len by domain
+<span class="spl-kw">| sort</span> - avg_len
+<span class="spl-kw">| head</span> <span class="spl-num">10</span></pre></div>
+        </div></li>
+        <li><span class="step-n">03</span><div>Hunt for beaconing pattern — regular intervals indicate automated tooling
+          <div class="code-block"><pre><span class="spl-kw">index</span>=nextdns client_ip=&lt;ALERT_IP&gt;
+<span class="spl-kw">| delta</span> _time as gap
+<span class="spl-kw">| stats</span> <span class="spl-fn">avg</span>(gap) by domain
+<span class="spl-kw">| where</span> avg(gap) &gt; <span class="spl-num">300</span> AND avg(gap) &lt; <span class="spl-num">3600</span></pre></div>
+        </div></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Phase 3: Contain -->
+  <div class="section">
+    <div class="sec-head"><span class="sec-label">[ phase 3 · contain ]</span><div class="sec-line"></div></div>
+    <div class="phase-block">
+      <div class="phase-title">containment <span>// 5 minutes</span></div>
+      <ul class="step-list">
+        <li><span class="step-n">01</span><div>Block domain in NextDNS denylist — immediate DNS-layer enforcement</div></li>
+        <li><span class="step-n">02</span><div>Isolate device via router admin panel — remove network access pending investigation</div></li>
+        <li><span class="step-n">03</span><div>Reimage device if compromise confirmed — do not attempt to clean; assume persistence</div></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Phase 4: Recover -->
+  <div class="section">
+    <div class="sec-head"><span class="sec-label">[ phase 4 · recover ]</span><div class="sec-line"></div></div>
+    <div class="phase-block">
+      <div class="phase-title">recovery &amp; documentation <span>// 5 minutes</span></div>
+      <ul class="step-list">
+        <li><span class="step-n">01</span><div>Document all IOCs — domain names, client IPs, timestamps, query volumes</div></li>
+        <li><span class="step-n">02</span><div>Update DET-001 threshold based on investigation findings — reduce false positive rate</div></li>
+        <li><span class="step-n">03</span><div>Add device to watchlist post-recovery — monitor for 48 hours after reintegration</div></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>IRP-001 · blue-team.kontor.studio</span>
+    <a href="https://github.com/kwasikontor45/blue-team-portfolio/blob/main/playbooks/IRP-001_dns_tunneling.md" target="_blank" rel="noopener">VIEW_SRC ↗</a>
+  </div>
+
+</div>
+<script>
+;(function(){
+  var P=[{h0:5,h1:11,l:'nyx',ph:'#ea9a97',g:'rgba(234,154,151,0.45)'},{h0:11,h1:17,l:'choice',ph:'#5ec8ed',g:'rgba(94,200,237,0.45)'},{h0:17,h1:21,l:'desire',ph:'#f6c177',g:'rgba(246,193,119,0.45)'},{h0:21,h1:5,l:'still-pine',ph:'#c4a7e7',g:'rgba(196,167,231,0.45)'}]
+  function ph(){var h=new Date().getHours();return P.find(function(p){return p.h0<p.h1?h>=p.h0&&h<p.h1:h>=p.h0||h<p.h1})||P[3]}
+  function ap(){var p=ph(),el=document.getElementById('phase-label');if(el){el.textContent=p.l;el.style.color=p.ph;el.style.textShadow='0 0 9px '+p.g}}
+  ap();setInterval(ap,3600000)
+})()
+</script>
+</body>
+</html>
