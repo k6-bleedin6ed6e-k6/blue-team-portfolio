@@ -145,14 +145,9 @@
   </div>
 
 </div>
-<script>
-;(function(){
-  var P=[{h0:5,h1:11,l:'nyx',ph:'#ea9a97',g:'rgba(234,154,151,0.45)'},{h0:11,h1:17,l:'choice',ph:'#5ec8ed',g:'rgba(94,200,237,0.45)'},{h0:17,h1:21,l:'desire',ph:'#f6c177',g:'rgba(246,193,119,0.45)'},{h0:21,h1:5,l:'still-pine',ph:'#c4a7e7',g:'rgba(196,167,231,0.45)'}]
-  function ph(){var h=new Date().getHours();return P.find(function(p){return p.h0<p.h1?h>=p.h0&&h<p.h1:h>=p.h0||h<p.h1})||P[3]}
-  function ap(){var p=ph(),el=document.getElementById('phase-label');if(el){el.textContent=p.l;el.style.color=p.ph;el.style.textShadow='0 0 9px '+p.g}}
-  ap();setInterval(ap,3600000)
-})()
-</script>
+<script>!function(){var h=new Date().getHours(),p=h>=5&&h<11?'nyx':h>=11&&h<17?'choice':h>=17&&h<21?'desire':'still-pine';document.documentElement.setAttribute('data-phase',p)}()</script>
+<script src="https://kontor.studio/circadian.js" onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/gh/kwasikontor45/kontor-studio@main/circadian.js';document.head.appendChild(s)"></script>
+<script>Circadian.applyLabel()</script>
 </body>
 </html>
 
