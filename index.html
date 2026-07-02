@@ -103,6 +103,14 @@
     .cert{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);padding:10px 0;font-size:11px;color:var(--ph-dim);letter-spacing:.5px;}
     .cert:last-child{border-bottom:none;}
     .cert-s{font-size:8px;letter-spacing:2px;color:var(--teal);opacity:.7;}
+    .badge-grid{display:flex;flex-wrap:wrap;gap:14px;padding:4px 0 8px;}
+    .badge-wrap{display:flex;flex-direction:column;align-items:center;gap:5px;text-decoration:none;}
+    .badge-wrap img{width:80px;height:80px;object-fit:contain;opacity:.88;transition:opacity .2s;}
+    .badge-wrap:hover img{opacity:1;}
+    .badge-lbl{font-size:7px;letter-spacing:1px;color:var(--ph-faint);text-align:center;max-width:86px;line-height:1.4;}
+    .badge-wrap.exp img{opacity:.32;filter:grayscale(.6);}
+    .badge-wrap.exp .badge-lbl{color:rgba(200,245,99,0.14);}
+    .cert-sub{font-size:9px;letter-spacing:1.5px;color:var(--ph-faint);margin:10px 0 4px;}
 
     /* footer */
     .footer{border-top:1px solid var(--border);padding-top:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
@@ -281,9 +289,56 @@
     </a>
   </div>
 
+  <!-- WRITE-UPS -->
+  <div class="section">
+    <div class="sec-head"><span class="sec-label">[ write-ups ]</span><div class="sec-line"></div></div>
+    <a href="posts/ssh-honeypot.html" class="artifact">
+      <div class="art-id">HUNT-002</div>
+      <div>
+        <div class="art-title">I Set Up an SSH Honeypot and Attackers Found It in Hours</div>
+        <div class="art-meta">2026-04-03 · T1110 · AWS EC2 · live threat data</div>
+      </div>
+      <div class="art-tags">
+        <span class="tag t-high">LIVE DATA</span>
+        <span class="tag t-filed">FILED</span>
+      </div>
+    </a>
+  </div>
+
   <!-- CERTS -->
   <div class="section">
     <div class="sec-head"><span class="sec-label">[ certifications ]</span><div class="sec-line"></div></div>
+    <div class="badge-grid">
+      <a href="https://www.credly.com/users/kwasi-kontor/badges" target="_blank" rel="noopener" class="badge-wrap">
+        <img src="https://images.credly.com/images/9180921d-4a13-429e-9357-6f9706a554f0/image.png" alt="ISC2 Candidate" loading="lazy">
+        <span class="badge-lbl">ISC2 Candidate</span>
+      </a>
+      <a href="https://www.credly.com/users/kwasi-kontor/badges" target="_blank" rel="noopener" class="badge-wrap">
+        <img src="https://images.credly.com/images/fab036b1-36ad-4640-9892-48f472847fe0/blob" alt="Network &amp; Physical Security Defense" loading="lazy">
+        <span class="badge-lbl">Network &amp; Physical Security Defense</span>
+      </a>
+      <a href="https://www.credly.com/users/kwasi-kontor/badges" target="_blank" rel="noopener" class="badge-wrap">
+        <img src="https://images.credly.com/images/c2c12738-34ee-4952-9084-fc404c35a58b/blob" alt="Secure Computer User" loading="lazy">
+        <span class="badge-lbl">Secure Computer User</span>
+      </a>
+      <a href="https://www.credly.com/users/kwasi-kontor/badges" target="_blank" rel="noopener" class="badge-wrap">
+        <img src="https://images.credly.com/images/fd4c50f8-601c-41b2-bf14-47a9b3c4cf91/image.png" alt="Introductory Spreadsheets" loading="lazy">
+        <span class="badge-lbl">Introductory Spreadsheets</span>
+      </a>
+      <a href="https://www.credly.com/users/kwasi-kontor/badges" target="_blank" rel="noopener" class="badge-wrap">
+        <img src="https://images.credly.com/images/6a91cf96-8add-4b49-a85f-8fc0dc63162f/image.png" alt="Reflective Problem Solver" loading="lazy">
+        <span class="badge-lbl">Reflective Problem Solver</span>
+      </a>
+      <a href="https://www.credly.com/users/kwasi-kontor/badges" target="_blank" rel="noopener" class="badge-wrap">
+        <img src="https://images.credly.com/images/21c52b80-bc04-4004-b8fe-d9423d2741ab/image.png" alt="Reflective Decision Maker" loading="lazy">
+        <span class="badge-lbl">Reflective Decision Maker</span>
+      </a>
+      <a href="https://www.credly.com/users/kwasi-kontor/badges" target="_blank" rel="noopener" class="badge-wrap exp">
+        <img src="https://images.credly.com/images/59248cc0-2be2-432c-8268-8cded324ec33/image.png" alt="Red Hat Academy Program Learner" loading="lazy">
+        <span class="badge-lbl">Red Hat Academy Learner · EXP</span>
+      </a>
+    </div>
+    <div class="cert-sub">[ in progress ]</div>
     <div class="cert"><span>Splunk Core Certified User</span><span class="cert-s">IN PROGRESS</span></div>
     <div class="cert"><span>Microsoft SC-900</span><span class="cert-s">IN PROGRESS</span></div>
     <div class="cert"><span>CompTIA Security+</span><span class="cert-s">IN PROGRESS</span></div>
