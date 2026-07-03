@@ -10,86 +10,296 @@
   <meta property="og:type" content="article">
   <link rel="icon" type="image/png" href="https://kontor.studio/kataleya-demo/assets/favicon.png">
   <style>
-    :root{--bg:#080809;--surface:#0d0d12;--ph:#c8f563;--ph-dim:rgba(200,245,99,0.45);--ph-faint:rgba(200,245,99,0.18);--text:rgba(226,224,220,0.92);--border:rgba(200,245,99,0.1);--bdr-hot:rgba(200,245,99,0.22);--teal:#5ec8ed;--teal-dim:rgba(94,200,237,0.35);--teal-bg:rgba(94,200,237,0.06);--gold:rgba(246,193,119,0.75);--gold-dim:rgba(246,193,119,0.2);--rose:#ea9a97;--rose-dim:rgba(234,154,151,0.2);}
-    *{margin:0;padding:0;box-sizing:border-box;}
-    html,body{background:var(--bg);color:var(--text);font-family:'Courier New',Courier,monospace;font-size:13px;line-height:1.6;min-height:100vh;text-shadow:0 0 1px rgba(255,255,255,0.08);}
-    a{color:inherit;text-decoration:none;}
-    .wrap{max-width:820px;margin:0 auto;padding:28px 24px 80px;}
-    .sysbar{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:36px;flex-wrap:wrap;gap:10px;}
-    .sys-l{display:flex;align-items:center;gap:14px;}
-    .back{font-size:10px;letter-spacing:1.5px;color:var(--ph-dim);transition:color .2s;}.back:hover{color:var(--ph);}
-    .sys-mark{font-size:10px;letter-spacing:2px;color:var(--ph-faint);}
-    .post-id{font-size:10px;letter-spacing:3px;color:var(--teal);margin-bottom:8px;}
-    .post-title{font-size:clamp(15px,3vw,21px);letter-spacing:2px;color:var(--ph);text-transform:uppercase;margin-bottom:12px;line-height:1.4;}
-    .post-badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
-    .badge{font-size:8px;letter-spacing:2px;padding:3px 10px;border:1px solid;}
-    .b-filed{color:var(--ph-faint);border-color:var(--border);}
-    .b-mitre{color:var(--gold);border-color:var(--gold-dim);}
-    .b-real{color:var(--rose);border-color:var(--rose-dim);}
-    .b-entry{color:rgba(94,200,237,0.5);border-color:rgba(94,200,237,0.15);}
-    .meta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-bottom:36px;}
-    .meta-cell{border:1px solid var(--border);padding:10px 14px;background:var(--surface);}
-    .meta-key{font-size:8px;letter-spacing:2px;color:var(--ph-faint);text-transform:uppercase;margin-bottom:4px;}
-    .meta-val{font-size:11px;color:var(--text);letter-spacing:.5px;}
-    .ioc{color:var(--rose);font-family:'Courier New',monospace;}
-    .section{margin-bottom:32px;}
-    .sec-head{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
-    .sec-label{font-size:9px;letter-spacing:3px;color:var(--ph-dim);white-space:nowrap;}
-    .sec-line{flex:1;height:1px;background:var(--border);}
-    .prose{font-size:12px;line-height:1.95;color:var(--text);letter-spacing:.2px;}
-    .prose p{margin-bottom:1.3em;}
-    .prose p:last-child{margin-bottom:0;}
-    .callout{border:1px solid var(--border);border-left:2px solid var(--teal);padding:14px 18px;background:var(--surface);margin-bottom:20px;font-size:12px;color:var(--ph-dim);line-height:1.8;}
-    .callout-note{border-left-color:var(--gold);}
-    .callout-warn{border-left-color:var(--rose);}
-    .code-block{background:#050508;border:1px solid var(--border);padding:18px 20px;overflow-x:auto;margin-bottom:12px;}
-    .code-label{font-size:8px;letter-spacing:2px;color:var(--ph-faint);margin-bottom:10px;text-transform:uppercase;}
-    pre{font-family:'Courier New',Courier,monospace;font-size:12px;line-height:1.7;white-space:pre;}
-    .spl-kw{color:#5ec8ed;}.spl-fn{color:#f6c177;}.spl-str{color:rgba(200,245,99,0.55);}.spl-num{color:#ea9a97;}
-    .intel-block{border:1px solid var(--border);padding:16px 20px;background:var(--surface);}
-    .intel-row{display:flex;gap:12px;padding:5px 0;border-bottom:1px solid rgba(200,245,99,0.05);font-size:11px;}
-    .intel-row:last-child{border-bottom:none;}
-    .intel-key{color:var(--ph-faint);letter-spacing:1px;min-width:140px;flex-shrink:0;}
-    .intel-val{color:var(--ph-dim);}
-    .lessons-list{list-style:none;padding:0;}
-    .lessons-list li{font-size:11px;color:var(--ph-faint);border-left:2px solid var(--border);padding:6px 0 6px 14px;margin-bottom:6px;line-height:1.8;}
-    .lessons-list li strong{color:var(--ph-dim);}
-    .footer{border-top:1px solid var(--border);padding-top:16px;display:flex;justify-content:space-between;font-size:9px;color:var(--ph-faint);letter-spacing:1px;flex-wrap:wrap;gap:8px;}
-    .footer a:hover{color:var(--ph-dim);}
+    /* ── circadian phase tokens ─────────────────────────── */
+    :root {
+      --bg:       #080809;
+      --ph:       #c8f563;
+      --ph-dim:   rgba(200,245,99,0.55);
+      --ph-faint: rgba(200,245,99,0.22);
+      --ph-rgb:   200,245,99;
+      --text:     rgba(226,224,220,0.88);
+      --dim:      rgba(226,224,220,0.45);
+      --rule:     rgba(200,245,99,0.14);
+      --surface:  rgba(200,245,99,0.04);
+    }
+    [data-phase="nyx"] {
+      --ph:       #eb6f92;
+      --ph-dim:   rgba(235,111,146,0.55);
+      --ph-faint: rgba(235,111,146,0.22);
+      --ph-rgb:   235,111,146;
+      --rule:     rgba(235,111,146,0.14);
+      --surface:  rgba(235,111,146,0.04);
+    }
+    [data-phase="desire"] {
+      --ph:       #f6c177;
+      --ph-dim:   rgba(246,193,119,0.55);
+      --ph-faint: rgba(246,193,119,0.22);
+      --ph-rgb:   246,193,119;
+      --rule:     rgba(246,193,119,0.14);
+      --surface:  rgba(246,193,119,0.04);
+    }
+    [data-phase="still-pine"] {
+      --ph:       #9ccfd8;
+      --ph-dim:   rgba(156,207,216,0.55);
+      --ph-faint: rgba(156,207,216,0.22);
+      --ph-rgb:   156,207,216;
+      --rule:     rgba(156,207,216,0.14);
+      --surface:  rgba(156,207,216,0.04);
+    }
+
+    /* ── base ────────────────────────────────────────────── */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 13px;
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+    a { color: inherit; text-decoration: none; }
+    .wrap { max-width: 780px; margin: 0 auto; padding: 32px 24px 100px; }
+
+    /* ── system boot header ──────────────────────────────── */
+    .boot { margin-bottom: 44px; }
+    .boot-line {
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      color: var(--ph-faint);
+      line-height: 1.9;
+    }
+    .boot-phase { color: var(--ph-dim); }
+    .boot-rule {
+      border: none;
+      border-top: 1px solid var(--rule);
+      margin: 10px 0;
+    }
+    .boot-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      color: var(--ph-faint);
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .boot-back { transition: color .2s; }
+    .boot-back:hover { color: var(--ph); }
+
+    /* ── article header ──────────────────────────────────── */
+    .art-head { margin-bottom: 40px; }
+    .art-cmd {
+      font-size: 11px;
+      color: var(--ph-faint);
+      margin-bottom: 18px;
+    }
+    .art-cmd .prompt { color: var(--ph-dim); }
+    .art-id {
+      font-size: 10px;
+      letter-spacing: 3px;
+      color: var(--ph-dim);
+      margin-bottom: 8px;
+    }
+    .art-title {
+      font-size: clamp(14px, 2.8vw, 20px);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--ph);
+      line-height: 1.35;
+      margin-bottom: 18px;
+    }
+    .art-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 24px; }
+    .tag {
+      font-size: 8px;
+      letter-spacing: 2px;
+      padding: 2px 9px;
+      border: 1px solid var(--rule);
+      color: var(--ph-faint);
+    }
+    .tag-threat { border-color: rgba(235,111,146,0.28); color: rgba(235,111,146,0.65); }
+    .tag-live   { border-color: rgba(234,154,151,0.25); color: rgba(234,154,151,0.6); }
+
+    /* ── IOC summary block ───────────────────────────────── */
+    .ioc-block {
+      border-top: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+      padding: 14px 0;
+      font-size: 11.5px;
+    }
+    .ioc-row { display: flex; margin-bottom: 3px; line-height: 1.65; }
+    .ioc-key { min-width: 136px; color: var(--ph-faint); letter-spacing: .5px; flex-shrink: 0; }
+    .ioc-val { color: var(--ph-dim); }
+    .ioc     { color: #eb6f92; }
+
+    /* ── sections ────────────────────────────────────────── */
+    .section { margin-bottom: 38px; }
+    .sec-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 9.5px;
+      letter-spacing: 2.5px;
+      color: var(--ph-dim);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .sec-head::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--rule);
+    }
+
+    /* ── prose ───────────────────────────────────────────── */
+    .prose { font-size: 12.5px; line-height: 2; color: var(--text); }
+    .prose p { margin-bottom: 1.25em; }
+    .prose p:last-child { margin-bottom: 0; }
+
+    /* ── callouts ────────────────────────────────────────── */
+    .callout {
+      margin: 22px 0;
+      padding: 12px 16px;
+      border-left: 2px solid var(--ph-dim);
+      background: var(--surface);
+      font-size: 12px;
+      color: var(--ph-faint);
+      line-height: 1.9;
+    }
+    .callout-tag {
+      font-size: 8.5px;
+      letter-spacing: 2px;
+      color: var(--ph-dim);
+      margin-bottom: 7px;
+    }
+    .callout-warn { border-left-color: rgba(235,111,146,0.55); }
+    .callout-warn .callout-tag { color: rgba(235,111,146,0.7); }
+    .callout-note { border-left-color: rgba(246,193,119,0.45); }
+    .callout-note .callout-tag { color: rgba(246,193,119,0.7); }
+
+    /* ── code blocks ─────────────────────────────────────── */
+    .code-block { margin: 22px 0; }
+    .code-hd {
+      font-size: 9px;
+      letter-spacing: 2px;
+      color: var(--ph-faint);
+      text-transform: uppercase;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--rule);
+      margin-bottom: 0;
+    }
+    pre {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 12px;
+      line-height: 1.8;
+      white-space: pre;
+      overflow-x: auto;
+      color: var(--text);
+      padding: 16px 0 12px;
+      border-bottom: 1px solid var(--rule);
+    }
+    .spl-kw  { color: #9ccfd8; }
+    .spl-fn  { color: #f6c177; }
+    .spl-str { color: rgba(200,245,99,0.55); }
+    .spl-num { color: #eb6f92; }
+
+    /* ── intel / whois block ─────────────────────────────── */
+    .intel-block {
+      margin: 22px 0;
+      padding: 14px 0;
+      border-top: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+    }
+    .intel-cmd {
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      color: var(--ph-faint);
+      margin-bottom: 12px;
+    }
+    .intel-cmd::before { content: '> '; color: var(--ph-dim); }
+    .intel-row { display: flex; font-size: 11.5px; margin-bottom: 4px; line-height: 1.65; }
+    .intel-key { min-width: 175px; color: var(--ph-faint); flex-shrink: 0; }
+    .intel-val { color: var(--ph-dim); }
+
+    /* ── lessons list ────────────────────────────────────── */
+    .lessons { list-style: none; padding: 0; }
+    .lessons li {
+      display: flex;
+      gap: 12px;
+      font-size: 12.5px;
+      color: var(--dim);
+      margin-bottom: 20px;
+      line-height: 1.9;
+      align-items: flex-start;
+    }
+    .lessons li::before {
+      content: '▸';
+      color: var(--ph-dim);
+      flex-shrink: 0;
+      padding-top: 2px;
+    }
+    .lessons li strong {
+      display: block;
+      color: var(--ph-faint);
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    /* ── footer ──────────────────────────────────────────── */
+    .foot {
+      margin-top: 60px;
+      border-top: 1px solid var(--rule);
+      padding-top: 16px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 9px;
+      letter-spacing: 1.5px;
+      color: var(--ph-faint);
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .foot a:hover { color: var(--ph-dim); }
   </style>
 </head>
 <body>
 <div class="wrap">
 
-  <div class="sysbar">
-    <div class="sys-l">
-      <a class="back" href="../index.html">← back</a>
-      <span class="sys-mark">KONTOR BLUE TEAM // WRITE-UPS</span>
+  <!-- SYSTEM BOOT HEADER -->
+  <div class="boot">
+    <div class="boot-line">SYSTEM: BLUE_TEAM_ARCHIVE ▸ WRITE-UPS _</div>
+    <div class="boot-line"><span id="phase-label" class="boot-phase"></span>STATE: ADAPTIVE_SYNC ☿⚕</div>
+    <hr class="boot-rule">
+    <div class="boot-nav">
+      <a class="boot-back" href="../index.html">← back to portfolio</a>
+      <span>KONTOR BLUE TEAM // 2026-04-03</span>
     </div>
-    <span class="sys-mark">2026-04-03</span>
   </div>
 
-  <div class="post-id">WRITE-UP · HUNT-002</div>
-  <div class="post-title">I Set Up an SSH Honeypot and Attackers Found It in Hours</div>
-  <div class="post-badges">
-    <span class="badge b-filed">FILED</span>
-    <span class="badge b-mitre">T1110 — BRUTE FORCE</span>
-    <span class="badge b-real">LIVE THREAT DATA</span>
-    <span class="badge b-entry">ENTRY LEVEL</span>
+  <!-- ARTICLE HEADER -->
+  <div class="art-head">
+    <div class="art-cmd"><span class="prompt">$ </span>arc read HUNT-002 --format=log</div>
+    <div class="art-id">WRITE-UP · HUNT-002</div>
+    <div class="art-title">I Set Up an SSH Honeypot and<br>Attackers Found It in Hours</div>
+    <div class="art-tags">
+      <span class="tag">FILED</span>
+      <span class="tag tag-threat">T1110 — BRUTE FORCE</span>
+      <span class="tag tag-live">LIVE THREAT DATA</span>
+      <span class="tag">ENTRY LEVEL</span>
+    </div>
+    <div class="ioc-block">
+      <div class="ioc-row"><span class="ioc-key">IOC</span><span class="ioc-val ioc">20.97.163.85</span></div>
+      <div class="ioc-row"><span class="ioc-key">ASN</span><span class="ioc-val">AS8075 — Microsoft Azure</span></div>
+      <div class="ioc-row"><span class="ioc-key">WINDOW</span><span class="ioc-val">10:20 – 10:25 UTC · 2026-04-03</span></div>
+      <div class="ioc-row"><span class="ioc-key">RATE</span><span class="ioc-val">12 attempts / min</span></div>
+      <div class="ioc-row"><span class="ioc-key">CONNECTIONS</span><span class="ioc-val">4 parallel</span></div>
+    </div>
   </div>
 
-  <div class="meta-grid">
-    <div class="meta-cell"><div class="meta-key">Date</div><div class="meta-val">2026-04-03</div></div>
-    <div class="meta-cell"><div class="meta-key">Window</div><div class="meta-val">10:20 – 10:25 UTC</div></div>
-    <div class="meta-cell"><div class="meta-key">IOC</div><div class="meta-val ioc">20.97.163.85</div></div>
-    <div class="meta-cell"><div class="meta-key">ASN</div><div class="meta-val">AS8075 — Microsoft</div></div>
-    <div class="meta-cell"><div class="meta-key">Rate</div><div class="meta-val">12 attempts / min</div></div>
-    <div class="meta-cell"><div class="meta-key">Connections</div><div class="meta-val">4 parallel</div></div>
-  </div>
-
-  <!-- WHY -->
+  <!-- WHY I DID THIS -->
   <div class="section">
-    <div class="sec-head"><span class="sec-label">[ why I did this ]</span><div class="sec-line"></div></div>
+    <div class="sec-head">[ why I did this ]</div>
     <div class="prose">
       <p>I'm working on a cybersecurity degree and I've been doing lab exercises for a while now. Lab traffic is clean by design — the attacker behavior you analyze was constructed to teach you something. That's useful, but it doesn't prepare you for the noise, the weirdness, or the speed of what actually hits an internet-facing server.</p>
       <p>I wanted to see it for real. So I stood up an AWS EC2 instance, opened port 22, and waited to see what would happen.</p>
@@ -99,33 +309,34 @@
 
   <!-- THE SETUP -->
   <div class="section">
-    <div class="sec-head"><span class="sec-label">[ the setup ]</span><div class="sec-line"></div></div>
+    <div class="sec-head">[ the setup ]</div>
     <div class="prose">
       <p>AWS EC2 t3.micro running Ubuntu. Single network interface. Port 22 exposed to the internet with password authentication enabled — just to give attackers something to brute force. Root login was disabled, but I created a standard user account. I wasn't trying to capture credentials; I was trying to capture log data.</p>
       <p>/var/log/auth.log was the primary source. I had Splunk Cloud set up to ingest it so I could write SPL queries against what came in.</p>
     </div>
     <div class="callout callout-note">
+      <div class="callout-tag">[!] NOTE</div>
       I did not have fail2ban running initially. That was a mistake I fixed after this hunt. More on that below.
     </div>
   </div>
 
   <!-- WHAT HAPPENED -->
   <div class="section">
-    <div class="sec-head"><span class="sec-label">[ what happened ]</span><div class="sec-line"></div></div>
+    <div class="sec-head">[ what happened ]</div>
     <div class="prose">
       <p>Within hours of the instance going up, SSH brute force attempts started showing up in auth.log. On 2026-04-03, I identified a sustained campaign starting around 10:20 UTC: a single IP address attempting authentication at roughly 12 attempts per minute, maintaining 4 parallel connections throughout.</p>
       <p>That's not a probe. That's deliberate, sustained brute force. The attacker wasn't checking if SSH was open — they already knew. They were trying to get in.</p>
     </div>
   </div>
 
-  <!-- THE QUERY -->
+  <!-- DETECTION -->
   <div class="section">
-    <div class="sec-head"><span class="sec-label">[ detection — SPL query ]</span><div class="sec-line"></div></div>
+    <div class="sec-head">[ detection — SPL query ]</div>
     <div class="prose">
       <p>I wrote this search to surface the pattern from auth.log. The key was finding IPs that exceeded a threshold of attempts per minute — 8 felt like a reasonable floor to separate brute force from background noise.</p>
     </div>
     <div class="code-block">
-      <div class="code-label">Splunk SPL — SSH Brute Force Detection</div>
+      <div class="code-hd">Splunk SPL — SSH Brute Force Detection</div>
       <pre><span class="spl-kw">index</span>=linux_syslog <span class="spl-kw">sourcetype</span>=syslog
 | <span class="spl-fn">regex</span> _raw=<span class="spl-str">"pam_unix\(sshd:auth\): authentication failure"</span>
 | <span class="spl-fn">bin</span> _time <span class="spl-kw">span</span>=<span class="spl-num">1m</span>
@@ -140,43 +351,70 @@
 
   <!-- THE IP -->
   <div class="section">
-    <div class="sec-head"><span class="sec-label">[ the IP — where it got interesting ]</span><div class="sec-line"></div></div>
+    <div class="sec-head">[ the IP — where it got interesting ]</div>
     <div class="prose">
       <p>I ran <span class="ioc">20.97.163.85</span> through AbuseIPDB. 247 reports. I assumed that confirmed it.</p>
       <p>Then I looked at the confidence score: <strong>0%.</strong></p>
       <p>I didn't understand that at first. How can 247 reports produce zero confidence? I went back and looked at the ASN.</p>
     </div>
     <div class="intel-block">
+      <div class="intel-cmd">whois 20.97.163.85</div>
       <div class="intel-row"><span class="intel-key">IP</span><span class="intel-val ioc">20.97.163.85</span></div>
       <div class="intel-row"><span class="intel-key">ASN</span><span class="intel-val">AS8075 — Microsoft Corporation</span></div>
-      <div class="intel-row"><span class="intel-key">Hosting</span><span class="intel-val">Microsoft Azure</span></div>
-      <div class="intel-row"><span class="intel-key">AbuseIPDB Reports</span><span class="intel-val">247</span></div>
-      <div class="intel-row"><span class="intel-key">AbuseIPDB Confidence</span><span class="intel-val">0% — shared cloud infrastructure</span></div>
+      <div class="intel-row"><span class="intel-key">HOST</span><span class="intel-val">Microsoft Azure</span></div>
+      <div class="intel-row"><span class="intel-key">ABUSEIPDB REPORTS</span><span class="intel-val">247</span></div>
+      <div class="intel-row"><span class="intel-key">ABUSEIPDB CONFIDENCE</span><span class="intel-val">0% — shared cloud infrastructure</span></div>
     </div>
-    <div class="prose" style="margin-top:16px;">
+    <div class="prose" style="margin-top:20px;">
       <p>Azure IP ranges are shared. The same IP block can host thousands of different customers — legitimate businesses, researchers, Microsoft's own services, and yes, attackers who spun up an Azure VM to use as a launch point. AbuseIPDB knows this. When it sees high report volume but shared infrastructure, it suppresses the confidence score because blocking that IP could also block legitimate traffic from the same range.</p>
       <p>So: 247 people reported it. 0% confidence to act on it as a standalone indicator. That felt contradictory until I understood the reasoning.</p>
     </div>
     <div class="callout callout-warn">
+      <div class="callout-tag">[!] WARN</div>
       Cloud provider IPs — AWS, Azure, GCP — require more context than a report count. The behavior in your own logs is the most reliable signal you have. External reputation is a supporting data point, not the conclusion.
     </div>
   </div>
 
-  <!-- WHAT I LEARNED -->
+  <!-- LESSONS -->
   <div class="section">
-    <div class="sec-head"><span class="sec-label">[ what I learned ]</span><div class="sec-line"></div></div>
-    <ul class="lessons-list">
-      <li><strong>IP reputation is not binary.</strong> A high report count and a low confidence score can coexist. Context — especially ASN and infrastructure type — changes what a report count means.</li>
-      <li><strong>Behavioral evidence beats point-in-time reputation.</strong> 12 attempts per minute sustained over several minutes is attack behavior. I don't need an external database to confirm that. My own logs confirm it.</li>
-      <li><strong>Fail2ban should have been day-one config.</strong> I didn't have it running when this attack came in. The attacker got to run 12 attempts per minute for longer than they should have. After this, I installed fail2ban with the sshd jail active. Simple. Should have been first.</li>
-      <li><strong>Real attack data comes in fast.</strong> I expected days before anything showed up. It was hours. Any internet-facing SSH port will attract attention almost immediately. That's worth knowing before you build something you think is "just for a minute."</li>
-      <li><strong>SPL thresholds need iteration.</strong> My 8-attempts-per-minute threshold worked here, but I set it somewhat arbitrarily. A real detection engineer would tune that threshold against a baseline. I'm working on building that baseline for my honeypot traffic over time.</li>
+    <div class="sec-head">[ what I learned ]</div>
+    <ul class="lessons">
+      <li>
+        <div>
+          <strong>IP reputation is not binary.</strong>
+          A high report count and a low confidence score can coexist. Context — especially ASN and infrastructure type — changes what a report count means.
+        </div>
+      </li>
+      <li>
+        <div>
+          <strong>Behavioral evidence beats point-in-time reputation.</strong>
+          12 attempts per minute sustained over several minutes is attack behavior. I don't need an external database to confirm that. My own logs confirm it.
+        </div>
+      </li>
+      <li>
+        <div>
+          <strong>Fail2ban should have been day-one config.</strong>
+          I didn't have it running when this attack came in. The attacker got to run 12 attempts per minute for longer than they should have. After this, I installed fail2ban with the sshd jail active. Simple. Should have been first.
+        </div>
+      </li>
+      <li>
+        <div>
+          <strong>Real attack data comes in fast.</strong>
+          I expected days before anything showed up. It was hours. Any internet-facing SSH port will attract attention almost immediately. That's worth knowing before you build something you think is "just for a minute."
+        </div>
+      </li>
+      <li>
+        <div>
+          <strong>SPL thresholds need iteration.</strong>
+          My 8-attempts-per-minute threshold worked here, but I set it somewhat arbitrarily. A real detection engineer would tune that threshold against a baseline. I'm working on building that baseline for my honeypot traffic over time.
+        </div>
+      </li>
     </ul>
   </div>
 
   <!-- WHAT'S NEXT -->
   <div class="section">
-    <div class="sec-head"><span class="sec-label">[ what's next ]</span><div class="sec-line"></div></div>
+    <div class="sec-head">[ what's next ]</div>
     <div class="prose">
       <p>I want to build time-series data from the honeypot — does the same IP come back? Do attacks cluster around certain hours? What's the ratio of credential spraying (many usernames, few passwords) versus pure brute force (one username, many passwords)?</p>
       <p>I also want to add geolocation and ASN tagging to the SPL pipeline so I can look at attack distribution over time without having to manually check each IP.</p>
@@ -185,17 +423,24 @@
     </div>
   </div>
 
-  <div class="footer">
-    <div>Kwasi M. Kontor · blue team portfolio</div>
-    <div>
+  <div class="foot">
+    <span>KONTOR BLUE TEAM · blue-team.kontor.studio</span>
+    <span>
       <a href="../index.html">← back to portfolio</a>
       &nbsp;·&nbsp;
-      <a href="https://blue-team.kontor.studio" target="_blank" rel="noopener">blue-team.kontor.studio ↗</a>
-    </div>
+      <a href="https://blue-team.kontor.studio" target="_blank" rel="noopener">↗ open site</a>
+    </span>
   </div>
 
 </div>
-<script>!function(){var h=new Date().getHours(),p=h>=5&&h<11?'nyx':h>=11&&h<17?'choice':h>=17&&h<21?'desire':'still-pine';document.documentElement.setAttribute('data-phase',p)}()</script>
-<script src="https://kontor.studio/circadian.js" onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/gh/kwasikontor45/kontor-studio@main/circadian.js';document.head.appendChild(s)"></script>
+<script>
+  !function(){
+    var h = new Date().getHours();
+    var p = (h >= 21 || h < 6) ? 'nyx' : h < 11 ? 'choice' : h < 17 ? 'desire' : 'still-pine';
+    document.documentElement.setAttribute('data-phase', p);
+    var el = document.getElementById('phase-label');
+    if (el) el.textContent = p + '·';
+  }();
+</script>
 </body>
 </html>
