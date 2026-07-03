@@ -7,114 +7,116 @@
   <meta name="description" content="DNS tunneling detection rule by Kwasi M. Kontor — Sigma rule and logic for identifying DNS exfiltration and C2 tunneling in SOC environments. Blue team portfolio artifact.">
   <link rel="icon" type="image/png" href="https://kontor.studio/kataleya-demo/assets/favicon.png">
   <style>
-    :root{--bg:#080809;--surface:#0d0d12;--ph:#c8f563;--ph-dim:rgba(200,245,99,0.45);--ph-faint:rgba(200,245,99,0.18);--text:rgba(226,224,220,0.92);--border:rgba(200,245,99,0.1);--bdr-hot:rgba(200,245,99,0.22);--teal:#5ec8ed;--teal-dim:rgba(94,200,237,0.35);--teal-bg:rgba(94,200,237,0.06);--gold:rgba(246,193,119,0.75);--gold-dim:rgba(246,193,119,0.2);}
-    *{margin:0;padding:0;box-sizing:border-box;}
-    html,body{background:var(--bg);color:var(--text);font-family:'Courier New',Courier,monospace;font-size:13px;line-height:1.6;min-height:100vh;text-shadow:0 0 1px rgba(255,255,255,0.10);}
+    :root{--bg:#080809;--ph:#c8f563;--ph-dim:rgba(200,245,99,0.55);--ph-faint:rgba(200,245,99,0.22);--ph-rgb:200,245,99;--text:rgba(226,224,220,0.88);--dim:rgba(226,224,220,0.45);--rule:rgba(200,245,99,0.14);--surface:rgba(200,245,99,0.04);}
+    [data-phase="nyx"]{--ph:#eb6f92;--ph-dim:rgba(235,111,146,0.55);--ph-faint:rgba(235,111,146,0.22);--ph-rgb:235,111,146;--rule:rgba(235,111,146,0.14);--surface:rgba(235,111,146,0.04);}
+    [data-phase="desire"]{--ph:#f6c177;--ph-dim:rgba(246,193,119,0.55);--ph-faint:rgba(246,193,119,0.22);--ph-rgb:246,193,119;--rule:rgba(246,193,119,0.14);--surface:rgba(246,193,119,0.04);}
+    [data-phase="still-pine"]{--ph:#9ccfd8;--ph-dim:rgba(156,207,216,0.55);--ph-faint:rgba(156,207,216,0.22);--ph-rgb:156,207,216;--rule:rgba(156,207,216,0.14);--surface:rgba(156,207,216,0.04);}
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html,body{background:var(--bg);color:var(--text);font-family:'Courier New',Courier,monospace;font-size:13px;line-height:1.7;min-height:100vh;}
     a{color:inherit;text-decoration:none;}
-    .wrap{max-width:820px;margin:0 auto;padding:28px 24px 80px;}
-    .sysbar{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:36px;flex-wrap:wrap;gap:10px;}
-    .sys-l{display:flex;align-items:center;gap:14px;}
-    .back{font-size:10px;letter-spacing:1.5px;color:var(--ph-dim);transition:color .2s;}.back:hover{color:var(--ph);}
-    .sys-mark{font-size:10px;letter-spacing:2px;color:var(--ph-faint);}
-    .sys-r{font-size:9px;letter-spacing:1.5px;}
-    .art-header{margin-bottom:32px;}
-    .art-id{font-size:10px;letter-spacing:3px;color:var(--teal);margin-bottom:8px;}
-    .art-title{font-size:clamp(16px,3vw,24px);letter-spacing:3px;color:var(--ph);text-transform:uppercase;margin-bottom:12px;}
-    .art-badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
-    .badge{font-size:8px;letter-spacing:2px;padding:3px 10px;border:1px solid;}
-    .b-active{color:var(--teal);border-color:var(--teal-dim);background:var(--teal-bg);}
-    .b-mitre{color:var(--gold);border-color:var(--gold-dim);}
-    .b-type{color:var(--ph-faint);border-color:var(--border);}
-    .meta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-bottom:36px;}
-    .meta-cell{border:1px solid var(--border);padding:10px 14px;background:var(--surface);}
-    .meta-key{font-size:8px;letter-spacing:2px;color:var(--ph-faint);text-transform:uppercase;margin-bottom:4px;}
-    .meta-val{font-size:11px;color:var(--text);letter-spacing:.5px;}
-    .section{margin-bottom:36px;}
-    .sec-head{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
-    .sec-label{font-size:9px;letter-spacing:3px;color:var(--ph-dim);white-space:nowrap;}
-    .sec-line{flex:1;height:1px;background:var(--border);}
-    .code-block{background:#050508;border:1px solid var(--border);padding:18px 20px;overflow-x:auto;margin-bottom:12px;}
-    .code-label{font-size:8px;letter-spacing:2px;color:var(--ph-faint);margin-bottom:10px;text-transform:uppercase;}
-    pre{font-family:'Courier New',Courier,monospace;font-size:12px;line-height:1.7;white-space:pre;}
-    .spl{color:#c8f563;}
-    .spl-kw{color:#5ec8ed;}
-    .spl-fn{color:#f6c177;}
-    .spl-str{color:rgba(200,245,99,0.55);}
-    .spl-num{color:#ea9a97;}
-    .yml{color:#5ec8ed;}
-    .yml-key{color:#c8f563;}
-    .yml-val{color:rgba(200,245,99,0.7);}
-    .yml-tag{color:#f6c177;}
-    .yml-comment{color:rgba(94,200,237,0.35);}
-    .note{font-size:11px;color:var(--ph-faint);border-left:2px solid var(--border);padding-left:14px;line-height:1.8;}
+    .wrap{max-width:780px;margin:0 auto;padding:32px 24px 100px;}
+    .boot{margin-bottom:44px;}
+    .boot-line{font-size:11px;letter-spacing:1.5px;color:var(--ph-faint);line-height:1.9;}
+    .boot-phase{color:var(--ph-dim);}
+    .boot-rule{border:none;border-top:1px solid var(--rule);margin:10px 0;}
+    .boot-nav{display:flex;justify-content:space-between;align-items:center;font-size:10px;letter-spacing:1.5px;color:var(--ph-faint);flex-wrap:wrap;gap:6px;}
+    .boot-back{transition:color .2s;}.boot-back:hover{color:var(--ph);}
+    .art-head{margin-bottom:40px;}
+    .art-cmd{font-size:11px;color:var(--ph-faint);margin-bottom:18px;}
+    .art-cmd .prompt{color:var(--ph-dim);}
+    .art-id{font-size:10px;letter-spacing:3px;color:var(--ph-dim);margin-bottom:8px;}
+    .art-title{font-size:clamp(14px,2.8vw,20px);letter-spacing:2px;text-transform:uppercase;color:var(--ph);line-height:1.35;margin-bottom:18px;}
+    .art-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:24px;}
+    .tag{font-size:8px;letter-spacing:2px;padding:2px 9px;border:1px solid var(--rule);color:var(--ph-faint);}
+    .tag-active{border-color:rgba(156,207,216,0.3);color:rgba(156,207,216,0.7);}
+    .tag-mitre{border-color:rgba(246,193,119,0.28);color:rgba(246,193,119,0.65);}
+    .meta-block{border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:14px 0;font-size:11.5px;}
+    .meta-row{display:flex;margin-bottom:3px;line-height:1.65;}
+    .meta-key{min-width:160px;color:var(--ph-faint);letter-spacing:.5px;flex-shrink:0;}
+    .meta-val{color:var(--ph-dim);}
+    .section{margin-bottom:38px;}
+    .sec-head{display:flex;align-items:center;gap:12px;font-size:9.5px;letter-spacing:2.5px;color:var(--ph-dim);text-transform:uppercase;margin-bottom:16px;}
+    .sec-head::after{content:'';flex:1;height:1px;background:var(--rule);}
+    .callout{margin:0 0 22px;padding:12px 16px;border-left:2px solid var(--ph-dim);background:var(--surface);font-size:12px;color:var(--ph-faint);line-height:1.9;}
+    .callout-tag{font-size:8.5px;letter-spacing:2px;color:var(--ph-dim);margin-bottom:7px;}
+    .code-block{margin:22px 0;}
+    .code-hd{font-size:9px;letter-spacing:2px;color:var(--ph-faint);text-transform:uppercase;padding-bottom:8px;border-bottom:1px solid var(--rule);}
+    pre{font-family:'Courier New',Courier,monospace;font-size:12px;line-height:1.8;white-space:pre;overflow-x:auto;color:var(--text);padding:16px 0 12px;border-bottom:1px solid var(--rule);}
+    .spl-kw{color:#9ccfd8;}.spl-fn{color:#f6c177;}.spl-str{color:rgba(200,245,99,0.55);}.spl-num{color:#eb6f92;}
+    .yml-key{color:#c8f563;}.yml-val{color:rgba(200,245,99,0.7);}.yml-tag{color:#f6c177;}.yml-comment{color:rgba(94,200,237,0.35);}
     .fp-list{list-style:none;padding:0;}
-    .fp-list li{font-size:11px;color:var(--ph-faint);padding:4px 0;border-bottom:1px solid var(--border);}
+    .fp-list li{display:flex;gap:10px;font-size:12px;color:var(--dim);padding:5px 0;border-bottom:1px solid rgba(200,245,99,0.05);}
     .fp-list li:last-child{border-bottom:none;}
-    .fp-list li::before{content:'· ';color:var(--teal);}
-    .footer{border-top:1px solid var(--border);padding-top:16px;display:flex;justify-content:space-between;font-size:9px;color:var(--ph-faint);letter-spacing:1px;}
-    .footer a:hover{color:var(--ph-dim);}
+    .fp-list li::before{content:'·';color:#9ccfd8;flex-shrink:0;}
+    .xref-block{padding:14px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);}
+    .xref-row{display:flex;margin-bottom:4px;font-size:11.5px;line-height:1.65;}
+    .xref-key{min-width:140px;color:var(--ph-faint);flex-shrink:0;}
+    .xref-val{color:var(--ph-dim);}
+    .foot{margin-top:60px;border-top:1px solid var(--rule);padding-top:16px;display:flex;justify-content:space-between;font-size:9px;letter-spacing:1.5px;color:var(--ph-faint);flex-wrap:wrap;gap:8px;}
+    .foot a:hover{color:var(--ph-dim);}
   </style>
 </head>
 <body>
 <div class="wrap">
 
-  <div class="sysbar">
-    <div class="sys-l">
-      <a class="back" href="../index.html">← back</a>
-      <span class="sys-mark">detections / DET-001</span>
-    </div>
-    <div class="sys-r">
-      <span id="phase-label" style="letter-spacing:1.5px;"></span>
+  <div class="boot">
+    <div class="boot-line">SYSTEM: BLUE_TEAM_ARCHIVE ▸ DETECTIONS _</div>
+    <div class="boot-line"><span id="phase-label" class="boot-phase"></span>STATE: ADAPTIVE_SYNC ☿⚕</div>
+    <hr class="boot-rule">
+    <div class="boot-nav">
+      <a class="boot-back" href="../index.html">← back to portfolio</a>
+      <span>KONTOR BLUE TEAM // 2026-04-02</span>
     </div>
   </div>
 
-  <div class="art-header">
+  <div class="art-head">
+    <div class="art-cmd"><span class="prompt">$ </span>arc load-rule DET-001</div>
     <div class="art-id">DET-001</div>
     <div class="art-title">DNS Tunneling Detection</div>
-    <div class="art-badges">
-      <span class="badge b-active">ACTIVE</span>
-      <span class="badge b-mitre">T1071.004 · C2 over DNS</span>
-      <span class="badge b-type">SPL</span>
-      <span class="badge b-type">SIGMA</span>
+    <div class="art-tags">
+      <span class="tag tag-active">ACTIVE</span>
+      <span class="tag tag-mitre">T1071.004 · C2 OVER DNS</span>
+      <span class="tag">SPL</span>
+      <span class="tag">SIGMA</span>
+    </div>
+    <div class="meta-block">
+      <div class="meta-row"><span class="meta-key">DATA SOURCE</span><span class="meta-val">NextDNS logs</span></div>
+      <div class="meta-row"><span class="meta-key">AUTHOR</span><span class="meta-val">kwasikontor45</span></div>
+      <div class="meta-row"><span class="meta-key">DATE</span><span class="meta-val">2026-04-02</span></div>
+      <div class="meta-row"><span class="meta-key">SEVERITY</span><span class="meta-val">High</span></div>
+      <div class="meta-row"><span class="meta-key">INDEX</span><span class="meta-val">nextdns</span></div>
+      <div class="meta-row"><span class="meta-key">STATUS</span><span class="meta-val" style="color:var(--ph-dim);">Experimental → Active</span></div>
     </div>
   </div>
 
-  <div class="meta-grid">
-    <div class="meta-cell"><div class="meta-key">Data Source</div><div class="meta-val">NextDNS logs</div></div>
-    <div class="meta-cell"><div class="meta-key">Author</div><div class="meta-val">kwasikontor45</div></div>
-    <div class="meta-cell"><div class="meta-key">Date</div><div class="meta-val">2026-04-02</div></div>
-    <div class="meta-cell"><div class="meta-key">Severity</div><div class="meta-val">High</div></div>
-    <div class="meta-cell"><div class="meta-key">Index</div><div class="meta-val">nextdns</div></div>
-    <div class="meta-cell"><div class="meta-key">Status</div><div class="meta-val" style="color:var(--teal);">Experimental → Active</div></div>
-  </div>
-
-  <!-- SPL -->
   <div class="section">
-    <div class="sec-head"><span class="sec-label">[ splunk SPL ]</span><div class="sec-line"></div></div>
+    <div class="sec-head">[ splunk SPL ]</div>
     <div class="code-block">
-      <div class="code-label">DET-001_dns_tunneling.spl</div>
-      <pre class="spl"><span class="spl-kw">index</span>=nextdns
-<span class="spl-kw">| eval</span> domain_length=<span class="spl-fn">len</span>(domain)
-<span class="spl-kw">| eval</span> subdomain=<span class="spl-fn">mvindex</span>(<span class="spl-fn">split</span>(domain,<span class="spl-str">"."</span>),<span class="spl-num">0</span>)
-<span class="spl-kw">| eval</span> subdomain_length=<span class="spl-fn">len</span>(subdomain)
-<span class="spl-kw">| where</span> domain_length &gt; <span class="spl-num">50</span> OR subdomain_length &gt; <span class="spl-num">30</span>
-<span class="spl-kw">| bin</span> _time span=<span class="spl-num">5</span>m
-<span class="spl-kw">| stats</span> <span class="spl-fn">count</span> as queries, <span class="spl-fn">dc</span>(domain) as unique_domains,
+      <div class="code-hd">DET-001_dns_tunneling.spl</div>
+      <pre><span class="spl-kw">index</span>=nextdns
+| <span class="spl-fn">eval</span> domain_length=<span class="spl-fn">len</span>(domain)
+| <span class="spl-fn">eval</span> subdomain=<span class="spl-fn">mvindex</span>(<span class="spl-fn">split</span>(domain,<span class="spl-str">"."</span>),<span class="spl-num">0</span>)
+| <span class="spl-fn">eval</span> subdomain_length=<span class="spl-fn">len</span>(subdomain)
+| <span class="spl-kw">where</span> domain_length &gt; <span class="spl-num">50</span> OR subdomain_length &gt; <span class="spl-num">30</span>
+| <span class="spl-fn">bin</span> _time span=<span class="spl-num">5</span>m
+| <span class="spl-fn">stats</span> <span class="spl-fn">count</span> as queries, <span class="spl-fn">dc</span>(domain) as unique_domains,
         <span class="spl-fn">avg</span>(domain_length) as avg_length by _time, client_ip
-<span class="spl-kw">| where</span> queries &gt; <span class="spl-num">20</span> OR unique_domains &gt; <span class="spl-num">15</span>
-<span class="spl-kw">| eval</span> severity=<span class="spl-fn">case</span>(queries&gt;<span class="spl-num">50</span>,<span class="spl-str">"CRITICAL"</span>,queries&gt;<span class="spl-num">20</span>,<span class="spl-str">"HIGH"</span>,<span class="spl-num">1</span>=<span class="spl-num">1</span>,<span class="spl-str">"MEDIUM"</span>)
-<span class="spl-kw">| table</span> _time, client_ip, queries, unique_domains, avg_length, severity
-<span class="spl-kw">| sort</span> - severity</pre>
+| <span class="spl-kw">where</span> queries &gt; <span class="spl-num">20</span> OR unique_domains &gt; <span class="spl-num">15</span>
+| <span class="spl-fn">eval</span> severity=<span class="spl-fn">case</span>(queries&gt;<span class="spl-num">50</span>,<span class="spl-str">"CRITICAL"</span>,queries&gt;<span class="spl-num">20</span>,<span class="spl-str">"HIGH"</span>,<span class="spl-num">1</span>=<span class="spl-num">1</span>,<span class="spl-str">"MEDIUM"</span>)
+| <span class="spl-fn">table</span> _time, client_ip, queries, unique_domains, avg_length, severity
+| <span class="spl-fn">sort</span> - severity</pre>
     </div>
-    <p class="note">Evaluates domain and subdomain length per 5-minute bucket. Flags clients exceeding query volume or unique domain thresholds. Severity tiered: CRITICAL (&gt;50 queries), HIGH (&gt;20), MEDIUM baseline.</p>
+    <div class="callout">
+      <div class="callout-tag">[*] NOTE</div>
+      Evaluates domain and subdomain length per 5-minute bucket. Flags clients exceeding query volume or unique domain thresholds. Severity tiered: CRITICAL (&gt;50 queries), HIGH (&gt;20), MEDIUM baseline.
+    </div>
   </div>
 
-  <!-- SIGMA -->
   <div class="section">
-    <div class="sec-head"><span class="sec-label">[ sigma rule ]</span><div class="sec-line"></div></div>
+    <div class="sec-head">[ sigma rule ]</div>
     <div class="code-block">
-      <div class="code-label">DET-001_dns_tunneling.yml</div>
-      <pre class="yml"><span class="yml-key">title</span><span class="yml-val">: DNS Tunneling Detection via NextDNS</span>
+      <div class="code-hd">DET-001_dns_tunneling.yml</div>
+      <pre><span class="yml-key">title</span><span class="yml-val">: DNS Tunneling Detection via NextDNS</span>
 <span class="yml-key">id</span><span class="yml-val">: det-001</span>
 <span class="yml-key">status</span><span class="yml-val">: experimental</span>
 <span class="yml-key">description</span><span class="yml-val">: Detects potential DNS tunneling using query length and volume analysis</span>
@@ -138,9 +140,8 @@
     </div>
   </div>
 
-  <!-- FALSE POSITIVES -->
   <div class="section">
-    <div class="sec-head"><span class="sec-label">[ false positives ]</span><div class="sec-line"></div></div>
+    <div class="sec-head">[ false positives ]</div>
     <ul class="fp-list">
       <li>CDN services with long domain names (e.g. Akamai, Cloudflare)</li>
       <li>Legitimate DDNS providers</li>
@@ -149,26 +150,34 @@
     </ul>
   </div>
 
-  <!-- MITRE -->
   <div class="section">
-    <div class="sec-head"><span class="sec-label">[ mitre att&amp;ck ]</span><div class="sec-line"></div></div>
-    <div class="meta-grid">
-      <div class="meta-cell"><div class="meta-key">Tactic</div><div class="meta-val">Command &amp; Control</div></div>
-      <div class="meta-cell"><div class="meta-key">Technique</div><div class="meta-val">T1071.004 — Application Layer Protocol: DNS</div></div>
-      <div class="meta-cell"><div class="meta-key">Playbook</div><div class="meta-val"><a href="../playbooks/IRP-001.html" style="color:var(--teal);">IRP-001 → DNS Tunneling Response</a></div></div>
-      <div class="meta-cell"><div class="meta-key">Hunt</div><div class="meta-val"><a href="../hunts/HUNT-001.html" style="color:var(--teal);">HUNT-001 → DNS Baseline</a></div></div>
+    <div class="sec-head">[ mitre att&amp;ck ]</div>
+    <div class="xref-block">
+      <div class="xref-row"><span class="xref-key">TACTIC</span><span class="xref-val">Command &amp; Control</span></div>
+      <div class="xref-row"><span class="xref-key">TECHNIQUE</span><span class="xref-val">T1071.004 — Application Layer Protocol: DNS</span></div>
+      <div class="xref-row"><span class="xref-key">PLAYBOOK</span><span class="xref-val"><a href="../playbooks/IRP-001.html" style="color:var(--ph-dim);">IRP-001 → DNS Tunneling Response ↗</a></span></div>
+      <div class="xref-row"><span class="xref-key">HUNT</span><span class="xref-val"><a href="../hunts/HUNT-001.html" style="color:var(--ph-dim);">HUNT-001 → DNS Baseline ↗</a></span></div>
     </div>
   </div>
 
-  <div class="footer">
-    <span>DET-001 · blue-team.kontor.studio</span>
-    <a href="https://github.com/kwasikontor45/blue-team-portfolio/blob/main/detections/splunk/DET-001_dns_tunneling.spl" target="_blank" rel="noopener">VIEW_SRC ↗</a>
+  <div class="foot">
+    <span>KONTOR BLUE TEAM · DET-001</span>
+    <span>
+      <a href="../index.html">← back to portfolio</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/kwasikontor45/blue-team-portfolio/blob/main/detections/splunk/DET-001_dns_tunneling.spl" target="_blank" rel="noopener">VIEW_SRC ↗</a>
+    </span>
   </div>
 
 </div>
-<script>!function(){var h=new Date().getHours(),p=h>=5&&h<11?'nyx':h>=11&&h<17?'choice':h>=17&&h<21?'desire':'still-pine';document.documentElement.setAttribute('data-phase',p)}()</script>
-<script src="https://kontor.studio/circadian.js" onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/gh/kwasikontor45/kontor-studio@main/circadian.js';document.head.appendChild(s)"></script>
-<script>Circadian.applyLabel()</script>
+<script>
+  !function(){
+    var h=new Date().getHours();
+    var p=(h>=21||h<6)?'nyx':h<11?'choice':h<17?'desire':'still-pine';
+    document.documentElement.setAttribute('data-phase',p);
+    var el=document.getElementById('phase-label');
+    if(el) el.textContent=p+'·';
+  }();
+</script>
 </body>
 </html>
-

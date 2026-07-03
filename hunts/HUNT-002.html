@@ -7,148 +7,179 @@
   <meta name="description" content="Live SSH brute force threat hunt by Kwasi M. Kontor — real attack data captured on an AWS EC2 honeypot. Attacker TTPs, log analysis, and detection logic. Blue team portfolio.">
   <link rel="icon" type="image/png" href="https://kontor.studio/kataleya-demo/assets/favicon.png">
   <style>
-    :root{--bg:#080809;--surface:#0d0d12;--ph:#c8f563;--ph-dim:rgba(200,245,99,0.45);--ph-faint:rgba(200,245,99,0.18);--text:rgba(226,224,220,0.92);--border:rgba(200,245,99,0.1);--bdr-hot:rgba(200,245,99,0.22);--teal:#5ec8ed;--teal-dim:rgba(94,200,237,0.35);--teal-bg:rgba(94,200,237,0.06);--gold:rgba(246,193,119,0.75);--gold-dim:rgba(246,193,119,0.2);--rose:#ea9a97;--rose-dim:rgba(234,154,151,0.2);}
-    *{margin:0;padding:0;box-sizing:border-box;}
-    html,body{background:var(--bg);color:var(--text);font-family:'Courier New',Courier,monospace;font-size:13px;line-height:1.6;min-height:100vh;text-shadow:0 0 1px rgba(255,255,255,0.10);}
+    :root{--bg:#080809;--ph:#c8f563;--ph-dim:rgba(200,245,99,0.55);--ph-faint:rgba(200,245,99,0.22);--ph-rgb:200,245,99;--text:rgba(226,224,220,0.88);--dim:rgba(226,224,220,0.45);--rule:rgba(200,245,99,0.14);--surface:rgba(200,245,99,0.04);}
+    [data-phase="nyx"]{--ph:#eb6f92;--ph-dim:rgba(235,111,146,0.55);--ph-faint:rgba(235,111,146,0.22);--ph-rgb:235,111,146;--rule:rgba(235,111,146,0.14);--surface:rgba(235,111,146,0.04);}
+    [data-phase="desire"]{--ph:#f6c177;--ph-dim:rgba(246,193,119,0.55);--ph-faint:rgba(246,193,119,0.22);--ph-rgb:246,193,119;--rule:rgba(246,193,119,0.14);--surface:rgba(246,193,119,0.04);}
+    [data-phase="still-pine"]{--ph:#9ccfd8;--ph-dim:rgba(156,207,216,0.55);--ph-faint:rgba(156,207,216,0.22);--ph-rgb:156,207,216;--rule:rgba(156,207,216,0.14);--surface:rgba(156,207,216,0.04);}
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html,body{background:var(--bg);color:var(--text);font-family:'Courier New',Courier,monospace;font-size:13px;line-height:1.7;min-height:100vh;}
     a{color:inherit;text-decoration:none;}
-    .wrap{max-width:820px;margin:0 auto;padding:28px 24px 80px;}
-    .sysbar{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:36px;flex-wrap:wrap;gap:10px;}
-    .sys-l{display:flex;align-items:center;gap:14px;}
-    .back{font-size:10px;letter-spacing:1.5px;color:var(--ph-dim);transition:color .2s;}.back:hover{color:var(--ph);}
-    .sys-mark{font-size:10px;letter-spacing:2px;color:var(--ph-faint);}
-    .art-id{font-size:10px;letter-spacing:3px;color:var(--teal);margin-bottom:8px;}
-    .art-title{font-size:clamp(16px,3vw,22px);letter-spacing:3px;color:var(--ph);text-transform:uppercase;margin-bottom:12px;}
-    .art-badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
-    .badge{font-size:8px;letter-spacing:2px;padding:3px 10px;border:1px solid;}
-    .b-filed{color:var(--ph-faint);border-color:var(--border);}
-    .b-mitre{color:var(--gold);border-color:var(--gold-dim);}
-    .b-real{color:var(--rose);border-color:var(--rose-dim);}
-    .meta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-bottom:36px;}
-    .meta-cell{border:1px solid var(--border);padding:10px 14px;background:var(--surface);}
-    .meta-key{font-size:8px;letter-spacing:2px;color:var(--ph-faint);text-transform:uppercase;margin-bottom:4px;}
-    .meta-val{font-size:11px;color:var(--text);letter-spacing:.5px;}
-    .section{margin-bottom:36px;}
-    .sec-head{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
-    .sec-label{font-size:9px;letter-spacing:3px;color:var(--ph-dim);white-space:nowrap;}
-    .sec-line{flex:1;height:1px;background:var(--border);}
-    .hypothesis{border:1px solid var(--border);padding:16px 20px;background:var(--surface);font-size:12px;color:var(--ph-dim);line-height:1.8;letter-spacing:.3px;}
-    .code-block{background:#050508;border:1px solid var(--border);padding:18px 20px;overflow-x:auto;margin-bottom:12px;}
-    .code-label{font-size:8px;letter-spacing:2px;color:var(--ph-faint);margin-bottom:10px;text-transform:uppercase;}
-    pre{font-family:'Courier New',Courier,monospace;font-size:12px;line-height:1.7;white-space:pre;}
-    .spl-kw{color:#5ec8ed;}.spl-fn{color:#f6c177;}.spl-str{color:rgba(200,245,99,0.55);}.spl-num{color:#ea9a97;}
-    .findings-table{width:100%;border-collapse:collapse;font-size:11px;}
-    .findings-table th{font-size:8px;letter-spacing:2px;color:var(--ph-faint);border-bottom:1px solid var(--border);padding:8px 10px;text-align:left;text-transform:uppercase;}
-    .findings-table td{padding:10px 10px;border-bottom:1px solid var(--border);color:var(--ph-dim);letter-spacing:.3px;}
+    .wrap{max-width:780px;margin:0 auto;padding:32px 24px 100px;}
+    .boot{margin-bottom:44px;}
+    .boot-line{font-size:11px;letter-spacing:1.5px;color:var(--ph-faint);line-height:1.9;}
+    .boot-phase{color:var(--ph-dim);}
+    .boot-rule{border:none;border-top:1px solid var(--rule);margin:10px 0;}
+    .boot-nav{display:flex;justify-content:space-between;align-items:center;font-size:10px;letter-spacing:1.5px;color:var(--ph-faint);flex-wrap:wrap;gap:6px;}
+    .boot-back{transition:color .2s;}.boot-back:hover{color:var(--ph);}
+    .art-head{margin-bottom:40px;}
+    .art-cmd{font-size:11px;color:var(--ph-faint);margin-bottom:18px;}
+    .art-cmd .prompt{color:var(--ph-dim);}
+    .art-id{font-size:10px;letter-spacing:3px;color:var(--ph-dim);margin-bottom:8px;}
+    .art-title{font-size:clamp(14px,2.8vw,20px);letter-spacing:2px;text-transform:uppercase;color:var(--ph);line-height:1.35;margin-bottom:18px;}
+    .art-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:24px;}
+    .tag{font-size:8px;letter-spacing:2px;padding:2px 9px;border:1px solid var(--rule);color:var(--ph-faint);}
+    .tag-threat{border-color:rgba(235,111,146,0.28);color:rgba(235,111,146,0.65);}
+    .tag-live{border-color:rgba(234,154,151,0.25);color:rgba(234,154,151,0.6);}
+    .ioc-block{border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:14px 0;font-size:11.5px;}
+    .ioc-row{display:flex;margin-bottom:3px;line-height:1.65;}
+    .ioc-key{min-width:136px;color:var(--ph-faint);letter-spacing:.5px;flex-shrink:0;}
+    .ioc-val{color:var(--ph-dim);}
+    .ioc{color:#eb6f92;}
+    .section{margin-bottom:38px;}
+    .sec-head{display:flex;align-items:center;gap:12px;font-size:9.5px;letter-spacing:2.5px;color:var(--ph-dim);text-transform:uppercase;margin-bottom:16px;}
+    .sec-head::after{content:'';flex:1;height:1px;background:var(--rule);}
+    .callout{margin:22px 0;padding:12px 16px;border-left:2px solid var(--ph-dim);background:var(--surface);font-size:12px;color:var(--ph-faint);line-height:1.9;}
+    .callout-tag{font-size:8.5px;letter-spacing:2px;color:var(--ph-dim);margin-bottom:7px;}
+    .code-block{margin:22px 0;}
+    .code-hd{font-size:9px;letter-spacing:2px;color:var(--ph-faint);text-transform:uppercase;padding-bottom:8px;border-bottom:1px solid var(--rule);}
+    pre{font-family:'Courier New',Courier,monospace;font-size:12px;line-height:1.8;white-space:pre;overflow-x:auto;color:var(--text);padding:16px 0 12px;border-bottom:1px solid var(--rule);}
+    .spl-kw{color:#9ccfd8;}.spl-fn{color:#f6c177;}.spl-str{color:rgba(200,245,99,0.55);}.spl-num{color:#eb6f92;}
+    .findings-table{width:100%;border-collapse:collapse;font-size:11.5px;margin-top:4px;}
+    .findings-table th{font-size:8px;letter-spacing:2px;color:var(--ph-faint);padding:0 0 8px;text-align:left;text-transform:uppercase;border-bottom:1px solid var(--rule);}
+    .findings-table td{padding:10px 0;border-bottom:1px solid rgba(200,245,99,0.06);color:var(--ph-faint);}
     .findings-table tr:last-child td{border-bottom:none;}
-    .ioc{color:var(--rose);font-family:'Courier New',monospace;}
-    .intel-block{border:1px solid var(--border);padding:16px 20px;background:var(--surface);}
-    .intel-row{display:flex;gap:12px;padding:5px 0;border-bottom:1px solid rgba(200,245,99,0.05);font-size:11px;}
-    .intel-row:last-child{border-bottom:none;}
-    .intel-key{color:var(--ph-faint);letter-spacing:1px;min-width:140px;}
+    .intel-block{margin:22px 0;padding:14px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);}
+    .intel-cmd{font-size:10px;letter-spacing:1.5px;color:var(--ph-faint);margin-bottom:12px;}
+    .intel-cmd::before{content:'> ';color:var(--ph-dim);}
+    .intel-row{display:flex;font-size:11.5px;margin-bottom:4px;line-height:1.65;}
+    .intel-key{min-width:175px;color:var(--ph-faint);flex-shrink:0;}
     .intel-val{color:var(--ph-dim);}
-    .intel-note{font-size:10px;color:rgba(200,245,99,0.25);margin-top:12px;border-left:2px solid var(--border);padding-left:12px;line-height:1.7;}
-    .lessons{font-size:11px;color:var(--ph-faint);border-left:2px solid var(--border);padding-left:14px;line-height:1.8;}
-    .footer{border-top:1px solid var(--border);padding-top:16px;display:flex;justify-content:space-between;font-size:9px;color:var(--ph-faint);letter-spacing:1px;}
-    .footer a:hover{color:var(--ph-dim);}
+    .intel-note{margin-top:14px;padding:10px 14px;border-left:2px solid var(--rule);font-size:11px;color:var(--ph-faint);line-height:1.85;}
+    .conclusion-block{padding:14px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);}
+    .conclusion-row{display:flex;margin-bottom:4px;font-size:11.5px;line-height:1.65;}
+    .conclusion-key{min-width:200px;color:var(--ph-faint);flex-shrink:0;}
+    .conclusion-val{color:var(--ph-dim);}
+    .lessons{list-style:none;padding:0;}
+    .lessons li{display:flex;gap:12px;font-size:12.5px;color:var(--dim);margin-bottom:16px;line-height:1.9;align-items:flex-start;}
+    .lessons li::before{content:'▸';color:var(--ph-dim);flex-shrink:0;padding-top:2px;}
+    .foot{margin-top:60px;border-top:1px solid var(--rule);padding-top:16px;display:flex;justify-content:space-between;font-size:9px;letter-spacing:1.5px;color:var(--ph-faint);flex-wrap:wrap;gap:8px;}
+    .foot a:hover{color:var(--ph-dim);}
   </style>
 </head>
 <body>
 <div class="wrap">
 
-  <div class="sysbar">
-    <div class="sys-l">
-      <a class="back" href="../index.html">← back</a>
-      <span class="sys-mark">hunts / HUNT-002</span>
+  <div class="boot">
+    <div class="boot-line">SYSTEM: BLUE_TEAM_ARCHIVE ▸ HUNTS _</div>
+    <div class="boot-line"><span id="phase-label" class="boot-phase"></span>STATE: ADAPTIVE_SYNC ☿⚕</div>
+    <hr class="boot-rule">
+    <div class="boot-nav">
+      <a class="boot-back" href="../index.html">← back to portfolio</a>
+      <span>KONTOR BLUE TEAM // 2026-04-03</span>
     </div>
-    <span id="phase-label" style="font-size:9px;letter-spacing:1.5px;"></span>
   </div>
 
-  <div style="margin-bottom:32px;">
+  <div class="art-head">
+    <div class="art-cmd"><span class="prompt">$ </span>arc read HUNT-002 --format=log</div>
     <div class="art-id">HUNT-002</div>
     <div class="art-title">Real Brute Force — SSH Honeypot</div>
-    <div class="art-badges">
-      <span class="badge b-filed">FILED</span>
-      <span class="badge b-mitre">T1110 · Brute Force</span>
-      <span class="badge b-real">LIVE ADVERSARY</span>
+    <div class="art-tags">
+      <span class="tag">FILED</span>
+      <span class="tag tag-threat">T1110 · BRUTE FORCE</span>
+      <span class="tag tag-live">LIVE ADVERSARY</span>
+    </div>
+    <div class="ioc-block">
+      <div class="ioc-row"><span class="ioc-key">IOC</span><span class="ioc-val ioc">20.97.163.85</span></div>
+      <div class="ioc-row"><span class="ioc-key">DATA SOURCE</span><span class="ioc-val">index=linux · sourcetype=linux_secure</span></div>
+      <div class="ioc-row"><span class="ioc-key">TIME RANGE</span><span class="ioc-val">10:20 – 10:25 UTC · 2026-04-03</span></div>
+      <div class="ioc-row"><span class="ioc-key">MITRE TECHNIQUE</span><span class="ioc-val">T1110 — Brute Force</span></div>
     </div>
   </div>
 
-  <div class="meta-grid">
-    <div class="meta-cell"><div class="meta-key">Hunt ID</div><div class="meta-val">HUNT-002</div></div>
-    <div class="meta-cell"><div class="meta-key">Date</div><div class="meta-val">2026-04-03</div></div>
-    <div class="meta-cell"><div class="meta-key">Analyst</div><div class="meta-val">kwasikontor45</div></div>
-    <div class="meta-cell"><div class="meta-key">Data Source</div><div class="meta-val">index=linux · sourcetype=linux_secure</div></div>
-    <div class="meta-cell"><div class="meta-key">Time Range</div><div class="meta-val">10:20–10:25 UTC</div></div>
-    <div class="meta-cell"><div class="meta-key">MITRE Technique</div><div class="meta-val">T1110 — Brute Force</div></div>
+  <div class="section">
+    <div class="sec-head">[ hypothesis ]</div>
+    <div class="callout">
+      <div class="callout-tag">HYPOTHESIS</div>
+      Public-facing SSH on a honeypot would attract automated brute force within hours of deployment. Real attacker traffic provides better detection validation than simulated attacks — confirms the detection pipeline from host log ingestion through Splunk alerting end-to-end.
+    </div>
   </div>
 
   <div class="section">
-    <div class="sec-head"><span class="sec-label">[ hypothesis ]</span><div class="sec-line"></div></div>
-    <div class="hypothesis">Public-facing SSH on a honeypot would attract automated brute force within hours of deployment. Real attacker traffic provides better detection validation than simulated attacks — confirms the detection pipeline from host log ingestion through Splunk alerting end-to-end.</div>
-  </div>
-
-  <div class="section">
-    <div class="sec-head"><span class="sec-label">[ hunt query ]</span><div class="sec-line"></div></div>
+    <div class="sec-head">[ hunt query ]</div>
     <div class="code-block">
-      <div class="code-label">SPL · index=linux</div>
+      <div class="code-hd">SPL · index=linux</div>
       <pre><span class="spl-kw">index</span>=linux sourcetype=linux_secure earliest=-15m
-<span class="spl-kw">| rex</span> <span class="spl-str">"PAM: Authentication failure for (?&lt;user&gt;\S+) from (?&lt;src_ip&gt;\d+\.\d+\.\d+\.\d+)"</span>
-<span class="spl-kw">| where</span> <span class="spl-fn">isnotnull</span>(src_ip)
-<span class="spl-kw">| bin</span> _time span=<span class="spl-num">1</span>m
-<span class="spl-kw">| stats</span> <span class="spl-fn">count</span> by _time, src_ip
-<span class="spl-kw">| sort</span> - count</pre>
+| <span class="spl-fn">rex</span> <span class="spl-str">"PAM: Authentication failure for (?&lt;user&gt;\S+) from (?&lt;src_ip&gt;\d+\.\d+\.\d+\.\d+)"</span>
+| <span class="spl-kw">where</span> <span class="spl-fn">isnotnull</span>(src_ip)
+| <span class="spl-fn">bin</span> _time span=<span class="spl-num">1</span>m
+| <span class="spl-fn">stats</span> <span class="spl-fn">count</span> by _time, src_ip
+| <span class="spl-fn">sort</span> - count</pre>
     </div>
   </div>
 
   <div class="section">
-    <div class="sec-head"><span class="sec-label">[ findings ]</span><div class="sec-line"></div></div>
+    <div class="sec-head">[ findings ]</div>
     <table class="findings-table">
-      <tr><th>IOC</th><th>Type</th><th>Severity</th><th>Disposition</th></tr>
+      <tr><th>IOC</th><th style="padding-left:16px;">TYPE</th><th style="padding-left:16px;">SEVERITY</th><th style="padding-left:16px;">DISPOSITION</th></tr>
       <tr>
         <td><span class="ioc">20.97.163.85</span></td>
-        <td>IP — SSH brute force</td>
-        <td style="color:var(--rose);">High</td>
-        <td>Monitoring — honeypot intel</td>
+        <td style="padding-left:16px;">IP — SSH brute force</td>
+        <td style="padding-left:16px;color:#eb6f92;">High</td>
+        <td style="padding-left:16px;">Monitoring — honeypot intel</td>
       </tr>
     </table>
   </div>
 
   <div class="section">
-    <div class="sec-head"><span class="sec-label">[ conclusion ]</span><div class="sec-line"></div></div>
-    <div class="meta-grid">
-      <div class="meta-cell"><div class="meta-key">True Positives</div><div class="meta-val">1 confirmed attacker</div></div>
-      <div class="meta-cell"><div class="meta-key">Attempt Rate</div><div class="meta-val">12/min · 4 parallel connections</div></div>
-      <div class="meta-cell"><div class="meta-key">Actions Taken</div><div class="meta-val">Monitoring only (honeypot intent)</div></div>
-      <div class="meta-cell"><div class="meta-key">Detection Validated</div><div class="meta-val" style="color:var(--teal);">DET-004 confirmed</div></div>
+    <div class="sec-head">[ conclusion ]</div>
+    <div class="conclusion-block">
+      <div class="conclusion-row"><span class="conclusion-key">TRUE POSITIVES</span><span class="conclusion-val">1 confirmed attacker</span></div>
+      <div class="conclusion-row"><span class="conclusion-key">ATTEMPT RATE</span><span class="conclusion-val">12/min · 4 parallel connections</span></div>
+      <div class="conclusion-row"><span class="conclusion-key">ACTIONS TAKEN</span><span class="conclusion-val">Monitoring only (honeypot intent)</span></div>
+      <div class="conclusion-row"><span class="conclusion-key">DETECTION VALIDATED</span><span class="conclusion-val" style="color:var(--ph-dim);">DET-004 confirmed</span></div>
     </div>
   </div>
 
   <div class="section">
-    <div class="sec-head"><span class="sec-label">[ threat intel enrichment ]</span><div class="sec-line"></div></div>
+    <div class="sec-head">[ threat intel enrichment ]</div>
     <div class="intel-block">
+      <div class="intel-cmd">whois 20.97.163.85</div>
       <div class="intel-row"><span class="intel-key">IP</span><span class="intel-val ioc">20.97.163.85</span></div>
-      <div class="intel-row"><span class="intel-key">AbuseIPDB Reports</span><span class="intel-val">247 reports · 0% confidence score</span></div>
+      <div class="intel-row"><span class="intel-key">ABUSEIPDB REPORTS</span><span class="intel-val">247 reports · 0% confidence score</span></div>
       <div class="intel-row"><span class="intel-key">ISP</span><span class="intel-val">Microsoft Corporation</span></div>
       <div class="intel-row"><span class="intel-key">ASN</span><span class="intel-val">AS8075 — Azure Data Center</span></div>
-      <div class="intel-row"><span class="intel-key">Assessment</span><span class="intel-val">Likely compromised Azure VM or automated scanner</span></div>
+      <div class="intel-row"><span class="intel-key">ASSESSMENT</span><span class="intel-val">Likely compromised Azure VM or automated scanner</span></div>
       <div class="intel-note">Cloud provider IPs are commonly abused — confidence scores alone are insufficient for blocking decisions. ASN-level blocking would collaterally hit legitimate Azure traffic. IOC enrichment must account for shared infrastructure.</div>
     </div>
   </div>
 
   <div class="section">
-    <div class="sec-head"><span class="sec-label">[ lessons learned ]</span><div class="sec-line"></div></div>
-    <p class="lessons">Honeypot was discovered and attacked within hours of deployment — confirms that internet-facing SSH is actively scanned within a very short window. Real attacker traffic provides better detection validation than simulated attacks. Cloud provider IP blocks require careful handling: AbuseIPDB confidence of 0% on a heavily-reported IP indicates shared infrastructure reuse, not a clean host.</p>
+    <div class="sec-head">[ lessons learned ]</div>
+    <ul class="lessons">
+      <li><div>Honeypot was discovered and attacked within hours of deployment — confirms that internet-facing SSH is actively scanned within a very short window.</div></li>
+      <li><div>Real attacker traffic provides better detection validation than simulated attacks.</div></li>
+      <li><div>Cloud provider IP blocks require careful handling: AbuseIPDB confidence of 0% on a heavily-reported IP indicates shared infrastructure reuse, not a clean host.</div></li>
+    </ul>
   </div>
 
-  <div class="footer">
-    <span>HUNT-002 · blue-team.kontor.studio</span>
-    <a href="https://github.com/kwasikontor45/blue-team-portfolio/blob/main/hunts/HUNT-002_real_brute_force/hunt.md" target="_blank" rel="noopener">VIEW_SRC ↗</a>
+  <div class="foot">
+    <span>KONTOR BLUE TEAM · HUNT-002</span>
+    <span>
+      <a href="../index.html">← back to portfolio</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/kwasikontor45/blue-team-portfolio/blob/main/hunts/HUNT-002_real_brute_force/hunt.md" target="_blank" rel="noopener">VIEW_SRC ↗</a>
+    </span>
   </div>
 
 </div>
-<script>!function(){var h=new Date().getHours(),p=h>=5&&h<11?'nyx':h>=11&&h<17?'choice':h>=17&&h<21?'desire':'still-pine';document.documentElement.setAttribute('data-phase',p)}()</script>
-<script src="https://kontor.studio/circadian.js" onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/gh/kwasikontor45/kontor-studio@main/circadian.js';document.head.appendChild(s)"></script>
-<script>Circadian.applyLabel()</script>
+<script>
+  !function(){
+    var h=new Date().getHours();
+    var p=(h>=21||h<6)?'nyx':h<11?'choice':h<17?'desire':'still-pine';
+    document.documentElement.setAttribute('data-phase',p);
+    var el=document.getElementById('phase-label');
+    if(el) el.textContent=p+'·';
+  }();
+</script>
 </body>
 </html>
-
