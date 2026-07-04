@@ -128,13 +128,13 @@
     <div class="boot-meta">
       <span>2026-04-01</span> &nbsp;·&nbsp; T1110 · T1071.004 · T1003 · T1059 · T1046 · T1136 · T1568
       &nbsp;·&nbsp; Azure · Splunk Cloud · NextDNS &nbsp;·&nbsp;
-      <span>PHASE 1 COMPLETE</span> &nbsp;·&nbsp; Phase 2 IN BUILD
+      <span>PHASE 1 COMPLETE</span> &nbsp;·&nbsp; <span>PHASE 2 COMPLETE</span>
     </div>
   </div>
 
   <!-- phase badges -->
   <div class="phase-badge done">[ PHASE 1 ] Azure + Splunk + Ubuntu Honeypot — COMPLETE</div><br>
-  <div class="phase-badge wip">[ PHASE 2 ] AWS EC2 + Wazuh + Windows Agent — IN BUILD</div>
+  <div class="phase-badge done">[ PHASE 2 ] AWS EC2 + Wazuh All-In-One + 3 Agents — COMPLETE</div>
 
   <!-- pipeline -->
   <div class="cli"><span class="prompt">$</span> arc read LAB-BUILD --section=pipeline</div>
@@ -157,7 +157,7 @@
   <div class="cli"><span class="prompt">$</span> arc read LAB-BUILD --section=overview</div>
   <div class="sec-head">[ overview ]</div>
   <div class="p">Built a cloud-native SOC home lab from scratch — no pre-built lab kits, no sandboxed data. Real infrastructure, real attack surface, real adversary data within hours of going live. Phase 1 documents the full setup: Ubuntu honeypot and Windows Server 2022 in Azure, Splunk Cloud as the SIEM, NextDNS for home network DNS telemetry, and 9 detection rules covering the most common entry-level SOC threat categories.</div>
-  <div class="p">Phase 2 is replacing the Splunk trial (expired) with a self-hosted Wazuh stack on AWS EC2 — free, persistent, and wired to the same honeypot now collecting live brute-force data.</div>
+  <div class="p">Phase 2 replaced the expired Splunk trial with a self-hosted Wazuh all-in-one stack on AWS EC2 — manager, indexer, and dashboard running on a single c7i-flex.large instance. Three agents enrolled: the py-bite honeypot (agent 001), khaos-lab local machine (agent 002), and the manager host as agent 000. Live SSH brute-force data from HUNT-002 is flowing into Wazuh in real time.</div>
 
   <!-- infrastructure -->
   <div class="cli"><span class="prompt">$</span> arc read LAB-BUILD --section=infrastructure</div>
@@ -372,17 +372,55 @@
   <div class="log-entry"><span class="log-ok">FIX</span><span class="log-txt">SCP timeout to Windows — port 22 blocked by NSG — opened via az network nsg rule create</span></div>
   <div class="log-entry"><span class="log-ok">FIX</span><span class="log-txt">RDP not supported on Chromebook — used Azure Bastion browser-based RDP instead</span></div>
 
-  <!-- phase 2 block -->
-  <div class="phase2-block">
-    <div class="phase2-head">[ phase 2 ] AWS EC2 + Wazuh — in build</div>
-    <div class="phase2-item"><span class="dot">→</span><span>Splunk Cloud trial expired — replaced with self-hosted Wazuh (free, persistent)</span></div>
-    <div class="phase2-item"><span class="dot">→</span><span>t3.small EC2 — Wazuh manager + indexer + dashboard (all-in-one install)</span></div>
-    <div class="phase2-item"><span class="dot">→</span><span>Existing t3.micro honeypot (34.225.113.167) wired as Wazuh agent</span></div>
-    <div class="phase2-item"><span class="dot">→</span><span>Live SSH brute-force data from HUNT-002 adversary flowing into Wazuh</span></div>
-    <div class="phase2-item"><span class="dot">→</span><span>Infrastructure: Terraform + Ansible — automated provision and teardown</span></div>
-    <div class="phase2-item"><span class="dot">→</span><span>9 SPL detection rules being ported to Wazuh rules / Sigma format</span></div>
-    <div class="phase2-item"><span class="dot">→</span><span>Page update on completion</span></div>
+  <!-- phase 2 infrastructure -->
+  <div class="cli" style="margin-top:2.5rem"><span class="prompt">$</span> arc read LAB-BUILD --section=infrastructure --phase=2</div>
+  <div class="sec-head">[ infrastructure — phase 2 ]</div>
+
+  <div class="p">
+    <span style="color:var(--ph-dim)">cloud:</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AWS (us-east-1)<br>
+    <span style="color:var(--ph-dim)">siem:</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Wazuh 4.14.6 — self-hosted all-in-one<br>
+    <span style="color:var(--ph-dim)">dashboard:</span>&nbsp;&nbsp;&nbsp; https://52.44.189.152 — port 443 — self-signed TLS
   </div>
+
+  <div class="log-entry"><span class="log-ok">SRV</span><span class="log-txt">wazuh-soc — c7i-flex.large — 4GB RAM · 2 vCPU · 40GB EBS — 52.44.189.152</span></div>
+  <div class="log-entry"><span class="log-ok">SRV</span><span class="log-txt">py-bite — t3.micro — 1GB RAM · 1 vCPU — 34.225.113.167 (existing honeypot)</span></div>
+  <div class="log-entry"><span class="log-ok">EDG</span><span class="log-txt">khaos-lab — Linux Mint 22.3 — local machine enrolled as remote agent</span></div>
+  <div class="log-entry"><span class="log-ok">STK</span><span class="log-txt">wazuh-manager · wazuh-indexer (OpenSearch 9200/TLS) · wazuh-dashboard (443/TLS)</span></div>
+  <div class="log-entry"><span class="log-ok">NET</span><span class="log-txt">AWS SG: 443 (dashboard) · 1514/1515 (agent enrollment) — opened via AWS CLI</span></div>
+
+  <!-- phase 2 agents -->
+  <div class="cli" style="margin-top:1.5rem"><span class="prompt">$</span> arc read LAB-BUILD --section=agents --phase=2</div>
+  <div class="sec-head">[ enrolled agents ]</div>
+
+  <div class="log-entry"><span class="log-ok">000</span><span class="log-txt">wazuh-soc — 172.31.42.217 — Ubuntu 22.04 — manager (self-monitoring) — active</span></div>
+  <div class="log-entry"><span class="log-ok">001</span><span class="log-txt">ip-172-31-40-82 — 172.31.40.82 — Ubuntu — py-bite honeypot — active</span></div>
+  <div class="log-entry"><span class="log-ok">002</span><span class="log-txt">bleedin6ed6e — 192.168.4.126 — Linux Mint 22.3 — khaos-lab — active</span></div>
+
+  <!-- phase 2 setup log -->
+  <div class="cli" style="margin-top:1.5rem"><span class="prompt">$</span> arc read LAB-BUILD --section=setup-log --phase=2</div>
+  <div class="sec-head">[ setup log — phase 2 ]</div>
+
+  <div class="p" style="color:var(--ph-dim); font-size:11px;">Wazuh Server</div>
+  <div class="log-entry"><span class="log-ok">✓</span><span class="log-txt">EBS volume expanded 20GB → 40GB — growpart + resize2fs in-place (no downtime)</span></div>
+  <div class="log-entry"><span class="log-ok">✓</span><span class="log-txt">wazuh-indexer installed — OpenSearch — TLS on port 9200 — admin auth confirmed</span></div>
+  <div class="log-entry"><span class="log-ok">✓</span><span class="log-txt">wazuh-manager installed — authd · remoted · analysisd · API (port 55000) all running</span></div>
+  <div class="log-entry"><span class="log-ok">✓</span><span class="log-txt">TLS certs generated via openssl req — self-signed 4096-bit RSA — 10yr validity</span></div>
+  <div class="log-entry"><span class="log-ok">✓</span><span class="log-txt">wazuh-dashboard installed — wazuh-alerts-* index pattern created on first launch</span></div>
+  <div class="log-entry"><span class="log-ok">✓</span><span class="log-txt">MOTD ESM + release-upgrade noise suppressed — chmod -x + Prompt=never</span></div>
+
+  <div class="p" style="color:var(--ph-dim); font-size:11px; margin-top:1rem;">Agent Enrollment</div>
+  <div class="log-entry"><span class="log-ok">✓</span><span class="log-txt">py-bite: Wazuh repo + WAZUH_MANAGER=172.31.42.217 apt install — enrolled via port 1515</span></div>
+  <div class="log-entry"><span class="log-ok">✓</span><span class="log-txt">khaos-lab: same install — WAZUH_MANAGER=52.44.189.152 (public IP for external agent)</span></div>
+  <div class="log-entry"><span class="log-ok">✓</span><span class="log-txt">All 3 agents visible in dashboard — wazuh-analysisd processing live events</span></div>
+
+  <!-- phase 2 known issues -->
+  <div class="cli" style="margin-top:1.5rem"><span class="prompt">$</span> arc read LAB-BUILD --section=issues --phase=2</div>
+  <div class="sec-head">[ known issues and fixes — phase 2 ]</div>
+  <div class="log-entry"><span class="log-ok">FIX</span><span class="log-txt">Disk at 100% — indexer held deleted log handles post-rotation — restart freed 5GB, EBS expand freed rest</span></div>
+  <div class="log-entry"><span class="log-ok">FIX</span><span class="log-txt">wazuh-install.sh returns HTTP 403 from EC2 IPs — switched to manual apt install of each component</span></div>
+  <div class="log-entry"><span class="log-ok">FIX</span><span class="log-txt">wazuh-agent installed on manager host — packages conflict over /var/ossec — removed agent, manager is 000</span></div>
+  <div class="log-entry"><span class="log-ok">FIX</span><span class="log-txt">Dashboard cert dir missing — generated self-signed cert with openssl, chown to wazuh-dashboard</span></div>
+  <div class="log-entry"><span class="log-ok">FIX</span><span class="log-txt">API auth error in dashboard — JWT required, not basic auth — confirmed via /security/user/authenticate</span></div>
 
   <!-- footer -->
   <div class="foot">
