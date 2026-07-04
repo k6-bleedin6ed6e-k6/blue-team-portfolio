@@ -1,24 +1,22 @@
-## Aspiring Information Security Analyst | Blue Team | Splunk | Azure
+## Blue Team · Detection Engineering · Threat Hunting
 
-🔍 **Current Focus:** Building cloud-native detection engineering skills
-☁️ **Lab:** Azure-based SOC simulation with Splunk Cloud
+🔍 **Current Focus:** Live adversary detection — real brute-force data from exposed EC2 honeypot
+☁️ **Lab:** AWS EC2 honeypot → Wazuh SIEM (in build)
 🛡️ **Specialties:** DNS security, threat hunting, incident response
 
 ### Stack
-- **SIEM:** Splunk Cloud
+- **SIEM:** Wazuh (self-hosted, replacing Splunk Cloud)
+- **Honeypot:** AWS EC2 t3.micro — live, collecting real adversary data
 - **DNS Telemetry:** NextDNS
-- **Cloud Lab:** Microsoft Azure (Student)
 - **Threat Intel:** MITRE ATT&CK
 
-### Featured Projects
-- **[Home Network SOC](./architecture):** NextDNS → Azure → Splunk Cloud pipeline
+### Artifacts
 - **[Detection Rules](./detections):** SPL and Sigma rules mapped to MITRE ATT&CK
-- **[IR Playbooks](./playbooks):** Incident response procedures tested in lab
+- **[Threat Hunts](./hunts):** HUNT-002 — real brute force, AS8075 (Microsoft Azure IP range)
+- **[IR Playbooks](./playbooks):** Incident response procedures with SLA timelines
+- **[Scripts](./scripts):** Lab automation and VM baseline setup
 
-
-<img width="687" height="449" alt="lovelace-dna-protocol" src="https://github.com/user-attachments/assets/a90b9c2d-593a-4e55-bbf6-078e14f497bd" />
-
-  ### Certifications In Progress
-  - Splunk Core Certified User
-  - Microsoft SC-900
-  - CompTIA Security+
+### Certifications In Progress
+- Splunk Core Certified User
+- Microsoft SC-900
+- CompTIA Security+
