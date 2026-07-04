@@ -153,8 +153,8 @@
 
     /* ── prose ───────────────────────────────────────────── */
     .prose { font-size: 12.5px; line-height: 2; color: var(--text); }
-    .prose p { margin-bottom: 1.25em; }
-    .prose p:last-child { margin-bottom: 0; }
+    .prose .p { display: block; margin-bottom: 1.25em; }
+    .prose .p:last-child { margin-bottom: 0; }
 
     /* ── callouts ────────────────────────────────────────── */
     .callout {
@@ -301,9 +301,9 @@
   <div class="section">
     <div class="sec-head">[ why I did this ]</div>
     <div class="prose">
-      <p>I'm working on a cybersecurity degree and I've been doing lab exercises for a while now. Lab traffic is clean by design — the attacker behavior you analyze was constructed to teach you something. That's useful, but it doesn't prepare you for the noise, the weirdness, or the speed of what actually hits an internet-facing server.</p>
-      <p>I wanted to see it for real. So I stood up an AWS EC2 instance, opened port 22, and waited to see what would happen.</p>
-      <p>I expected it to take a few days. It didn't.</p>
+      <div class="p">I'm working on a cybersecurity degree and I've been doing lab exercises for a while now. Lab traffic is clean by design — the attacker behavior you analyze was constructed to teach you something. That's useful, but it doesn't prepare you for the noise, the weirdness, or the speed of what actually hits an internet-facing server.</div>
+      <div class="p">I wanted to see it for real. So I stood up an AWS EC2 instance, opened port 22, and waited to see what would happen.</div>
+      <div class="p">I expected it to take a few days. It didn't.</div>
     </div>
   </div>
 
@@ -311,8 +311,8 @@
   <div class="section">
     <div class="sec-head">[ the setup ]</div>
     <div class="prose">
-      <p>AWS EC2 t3.micro running Ubuntu. Single network interface. Port 22 exposed to the internet with password authentication enabled — just to give attackers something to brute force. Root login was disabled, but I created a standard user account. I wasn't trying to capture credentials; I was trying to capture log data.</p>
-      <p>/var/log/auth.log was the primary source. I had Splunk Cloud set up to ingest it so I could write SPL queries against what came in.</p>
+      <div class="p">AWS EC2 t3.micro running Ubuntu. Single network interface. Port 22 exposed to the internet with password authentication enabled — just to give attackers something to brute force. Root login was disabled, but I created a standard user account. I wasn't trying to capture credentials; I was trying to capture log data.</div>
+      <div class="p">/var/log/auth.log was the primary source. I had Splunk Cloud set up to ingest it so I could write SPL queries against what came in.</div>
     </div>
     <div class="callout callout-note">
       <div class="callout-tag">[!] NOTE</div>
@@ -324,8 +324,8 @@
   <div class="section">
     <div class="sec-head">[ what happened ]</div>
     <div class="prose">
-      <p>Within hours of the instance going up, SSH brute force attempts started showing up in auth.log. On 2026-04-03, I identified a sustained campaign starting around 10:20 UTC: a single IP address attempting authentication at roughly 12 attempts per minute, maintaining 4 parallel connections throughout.</p>
-      <p>That's not a probe. That's deliberate, sustained brute force. The attacker wasn't checking if SSH was open — they already knew. They were trying to get in.</p>
+      <div class="p">Within hours of the instance going up, SSH brute force attempts started showing up in auth.log. On 2026-04-03, I identified a sustained campaign starting around 10:20 UTC: a single IP address attempting authentication at roughly 12 attempts per minute, maintaining 4 parallel connections throughout.</div>
+      <div class="p">That's not a probe. That's deliberate, sustained brute force. The attacker wasn't checking if SSH was open — they already knew. They were trying to get in.</div>
     </div>
   </div>
 
@@ -333,7 +333,7 @@
   <div class="section">
     <div class="sec-head">[ detection — SPL query ]</div>
     <div class="prose">
-      <p>I wrote this search to surface the pattern from auth.log. The key was finding IPs that exceeded a threshold of attempts per minute — 8 felt like a reasonable floor to separate brute force from background noise.</p>
+      <div class="p">I wrote this search to surface the pattern from auth.log. The key was finding IPs that exceeded a threshold of attempts per minute — 8 felt like a reasonable floor to separate brute force from background noise.</div>
     </div>
     <div class="code-block">
       <div class="code-hd">Splunk SPL — SSH Brute Force Detection</div>
@@ -345,7 +345,7 @@
 | <span class="spl-fn">sort</span> -attempts</pre>
     </div>
     <div class="prose">
-      <p>The results were clear. One IP. Consistent. Sustained. The threshold of 8/min was high enough to filter normal noise but low enough to catch this attacker before they had much time to work.</p>
+      <div class="p">The results were clear. One IP. Consistent. Sustained. The threshold of 8/min was high enough to filter normal noise but low enough to catch this attacker before they had much time to work.</div>
     </div>
   </div>
 
@@ -353,9 +353,9 @@
   <div class="section">
     <div class="sec-head">[ the IP — where it got interesting ]</div>
     <div class="prose">
-      <p>I ran <span class="ioc">20.97.163.85</span> through AbuseIPDB. 247 reports. I assumed that confirmed it.</p>
-      <p>Then I looked at the confidence score: <strong>0%.</strong></p>
-      <p>I didn't understand that at first. How can 247 reports produce zero confidence? I went back and looked at the ASN.</p>
+      <div class="p">I ran <span class="ioc">20.97.163.85</span> through AbuseIPDB. 247 reports. I assumed that confirmed it.</div>
+      <div class="p">Then I looked at the confidence score: <strong>0%.</strong></div>
+      <div class="p">I didn't understand that at first. How can 247 reports produce zero confidence? I went back and looked at the ASN.</div>
     </div>
     <div class="intel-block">
       <div class="intel-cmd">whois 20.97.163.85</div>
@@ -366,8 +366,8 @@
       <div class="intel-row"><span class="intel-key">ABUSEIPDB CONFIDENCE</span><span class="intel-val">0% — shared cloud infrastructure</span></div>
     </div>
     <div class="prose" style="margin-top:20px;">
-      <p>Azure IP ranges are shared. The same IP block can host thousands of different customers — legitimate businesses, researchers, Microsoft's own services, and yes, attackers who spun up an Azure VM to use as a launch point. AbuseIPDB knows this. When it sees high report volume but shared infrastructure, it suppresses the confidence score because blocking that IP could also block legitimate traffic from the same range.</p>
-      <p>So: 247 people reported it. 0% confidence to act on it as a standalone indicator. That felt contradictory until I understood the reasoning.</p>
+      <div class="p">Azure IP ranges are shared. The same IP block can host thousands of different customers — legitimate businesses, researchers, Microsoft's own services, and yes, attackers who spun up an Azure VM to use as a launch point. AbuseIPDB knows this. When it sees high report volume but shared infrastructure, it suppresses the confidence score because blocking that IP could also block legitimate traffic from the same range.</div>
+      <div class="p">So: 247 people reported it. 0% confidence to act on it as a standalone indicator. That felt contradictory until I understood the reasoning.</div>
     </div>
     <div class="callout callout-warn">
       <div class="callout-tag">[!] WARN</div>
@@ -416,10 +416,10 @@
   <div class="section">
     <div class="sec-head">[ what's next ]</div>
     <div class="prose">
-      <p>I want to build time-series data from the honeypot — does the same IP come back? Do attacks cluster around certain hours? What's the ratio of credential spraying (many usernames, few passwords) versus pure brute force (one username, many passwords)?</p>
-      <p>I also want to add geolocation and ASN tagging to the SPL pipeline so I can look at attack distribution over time without having to manually check each IP.</p>
-      <p>And geoblock. Probably geoblock.</p>
-      <p>This was five minutes of real log analysis that taught me more about IP reputation and behavioral detection than weeks of lab scenarios. I'd recommend it to anyone learning blue team — stand something up, open a port, and watch what comes in.</p>
+      <div class="p">I want to build time-series data from the honeypot — does the same IP come back? Do attacks cluster around certain hours? What's the ratio of credential spraying (many usernames, few passwords) versus pure brute force (one username, many passwords)?</div>
+      <div class="p">I also want to add geolocation and ASN tagging to the SPL pipeline so I can look at attack distribution over time without having to manually check each IP.</div>
+      <div class="p">And geoblock. Probably geoblock.</div>
+      <div class="p">This was five minutes of real log analysis that taught me more about IP reputation and behavioral detection than weeks of lab scenarios. I'd recommend it to anyone learning blue team — stand something up, open a port, and watch what comes in.</div>
     </div>
   </div>
 
