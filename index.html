@@ -365,9 +365,7 @@
   </div>
 
 </div>
-<script>!function(){var h=new Date().getHours(),p=h>=5&&h<11?'nyx':h>=11&&h<17?'choice':h>=17&&h<21?'desire':'still-pine';document.documentElement.setAttribute('data-phase',p)}()</script>
-<script src="https://kontor.studio/circadian.js" onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/gh/kwasikontor45/kontor-studio@main/circadian.js';document.head.appendChild(s)"></script>
-<script>Circadian.applyLabel()</script>
+<script>(function(){var h=new Date().getHours();var p=h>=21||h<6?'nyx':h<11?'choice':h<17?'desire':'still-pine';document.documentElement.setAttribute('data-phase',p);var el=document.getElementById('phase-label');if(el)el.textContent='['+p+']';}());</script>
 </body>
 </html>
 
