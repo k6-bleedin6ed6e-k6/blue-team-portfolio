@@ -40,7 +40,7 @@
     .wrap{max-width:820px;margin:0 auto;padding:28px 24px 80px;}
 
     /* system bar */
-    .sysbar{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:40px;flex-wrap:wrap;gap:10px;}
+    .sysbar{position:relative;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:40px;flex-wrap:wrap;gap:10px;}
     .sys-l{display:flex;align-items:center;gap:16px;}
     .sys-mark{font-size:11px;letter-spacing:3px;color:var(--ph);}
     .sys-status{font-size:9px;letter-spacing:2px;color:var(--teal);opacity:.75;}
@@ -48,6 +48,40 @@
     .sys-phase{font-size:9px;letter-spacing:1.5px;}
     .sys-link{font-size:9px;letter-spacing:2px;color:var(--ph-dim);border:1px solid var(--border);padding:3px 10px;transition:color .2s,border-color .2s;}
     .sys-link:hover{color:var(--ph);border-color:var(--bdr-hot);}
+
+    /* mercury glyph + signature shift color with the circadian phase */
+    [data-phase="nyx"]       .mercury-glyph, [data-phase="nyx"]       .signature { color: #ea9a97; text-shadow: 0 0 6px rgba(234,154,151,0.45); }
+    [data-phase="choice"]    .mercury-glyph, [data-phase="choice"]    .signature { color: #5ec8ed; text-shadow: 0 0 6px rgba(94,200,237,0.45); }
+    [data-phase="desire"]    .mercury-glyph, [data-phase="desire"]    .signature { color: #f6c177; text-shadow: 0 0 6px rgba(246,193,119,0.45); }
+    [data-phase="still-pine"] .mercury-glyph, [data-phase="still-pine"] .signature { color: #c4a7e7; text-shadow: 0 0 6px rgba(196,167,231,0.45); }
+
+    @keyframes flow {
+      0%   { opacity:0.2; transform:translateY(2px) scale(0.98); }
+      50%  { opacity:1;   transform:translateY(-2px) scale(1.02); }
+      100% { opacity:0.2; transform:translateY(2px) scale(0.98); }
+    }
+    @keyframes flow-delay {
+      0%   { opacity:1;   transform:translateY(-2px) scale(1.02); }
+      50%  { opacity:0.2; transform:translateY(2px) scale(0.98); }
+      100% { opacity:1;   transform:translateY(-2px) scale(1.02); }
+    }
+    .sysbar::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 14%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--teal), transparent);
+      box-shadow: 0 0 5px var(--teal);
+      opacity: 0.8;
+      animation: mercury-crawl 6s ease-in-out infinite alternate;
+      pointer-events: none;
+    }
+    @keyframes mercury-crawl {
+      0%   { left: 0%; }
+      100% { left: 86%; }
+    }
 
     /* hero */
     .hero{margin-bottom:44px;}
@@ -163,6 +197,7 @@
     </div>
     <div class="sys-r">
       <span class="sys-phase" id="phase-label"></span>
+      <span class="mercury-glyph" style="display:inline-block;animation:flow 2.4s ease-in-out infinite;">☿</span><span class="mercury-glyph" style="display:inline-block;animation:flow-delay 2.4s ease-in-out infinite;margin-right:4px;">⚕</span>
       <a class="sys-link" href="https://github.com/kwasikontor45/blue-team-portfolio" target="_blank" rel="noopener">VIEW_SRC ↗</a>
     </div>
   </div>
@@ -171,6 +206,7 @@
     <a href="https://kwasikontor.dev" target="_blank" rel="noopener noreferrer" style="display:block;text-align:center;margin-bottom:16px;">
       <img src="https://kontor.studio/butterfly-dna.gif" alt="Kwasi M. Kontor" style="width:72px;height:72px;border-radius:50%;display:block;margin:0 auto;filter:drop-shadow(0 0 14px rgba(200,245,99,0.2));" />
     </a>
+    <div class="signature" style="text-align:center; margin-bottom:12px; font-size:11px; letter-spacing:2px; opacity:0.6;">..: :..</div>
     <div class="hero-title">BLUE TEAM // PORTFOLIO</div>
     <div class="hero-sub">architecture dashboards · detections · hunts · playbooks · scripts<br>active lab work. continuous iteration.</div>
     <div class="hero-meta">
