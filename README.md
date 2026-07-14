@@ -14,6 +14,7 @@
 
 ### Artifacts
 - **[Detection Rules](./detections):** SPL and Sigma rules mapped to MITRE ATT&CK
+- **[Labs](./labs):** LAB-001 — Securing IoT Device Communication with TLS/SSL (MQTT), CND coursework lab reproduced on Docker/Linux instead of the original Windows VMs
 - **[Threat Hunts](./hunts):** HUNT-002 — real brute force captured 2026-04-03, AS8075 (Microsoft Azure IP range)
 - **[IR Playbooks](./playbooks):** Incident response procedures with SLA timelines
 - **[Scripts](./scripts):** Lab automation and VM baseline setup
