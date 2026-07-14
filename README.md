@@ -2,6 +2,33 @@
 
 **Live:** [blue-team.kontor.studio](https://blue-team.kontor.studio)
 
+### Deploy
+
+**This is a manual-deploy site — pushing to `main` does NOT auto-build it.**
+Unlike the other kontor-studio-family sites, this Cloudflare Pages project
+was set up as a "Direct Uploads" project rather than a Git-connected one,
+and Cloudflare doesn't allow converting that after the fact (confirmed via
+their own API: `You cannot update the source object in a Direct Uploads
+project` — not a permissions issue, a hard platform rule). Fixing it for
+real means creating a brand-new Pages project connected to GitHub and
+re-pointing the `blue-team.kontor.studio` custom domain to it — a real
+project migration, not a config toggle, so it hasn't been done since the
+manual deploy below works fine and takes seconds.
+
+**After every push, deploy manually with:**
+
+```bash
+CLOUDFLARE_API_TOKEN=<token from ~/dev-notes/surgery-tools/.cftk, key: arc-deploy> \
+CLOUDFLARE_ACCOUNT_ID=<from same file, key: cf-acct-id> \
+npx wrangler pages deploy . --project-name=blue-team-portfolio --commit-dirty=true
+```
+
+No install needed beyond `npx` (it fetches `wrangler` on demand). Confirm
+it landed with `curl -sL https://blue-team.kontor.studio/ | grep <something
+you just changed>` — Cloudflare's edge cache can serve a stale copy on the
+very first check, so a cache-busted request (`?cb=$(date +%s)`) is the
+reliable way to confirm.
+
 🔍 **Current Focus:** Detection engineering + threat hunting against a real historical dataset — genuine adversary brute-force traffic captured during an intentionally-exposed honeypot window (April 2026), analyzed and turned into working detections since.
 ☁️ **Lab:** Wazuh SIEM (self-hosted, EC2) — built, torn down 2026-07-06 after a cost-drift incident (wrong instance size, caught and killed), rebuilt properly 2026-07-07 with correct sizing and an actual monitored budget alert this time. Live and running. Source at [wazuh-soc-lab](https://github.com/kwasikontor45/wazuh-soc-lab).
 🛡️ **Specialties:** DNS security, threat hunting, incident response
