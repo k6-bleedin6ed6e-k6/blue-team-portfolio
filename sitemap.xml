@@ -27,6 +27,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://blue-team.kontor.studio/reports/TDR-001.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://blue-team.kontor.studio/scripts/SCR-001.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>

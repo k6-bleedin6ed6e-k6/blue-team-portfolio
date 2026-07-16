@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TDR-001 — SSH Brute Force Threat Detection Report | Kwasi M. Kontor</title>
+  <meta name="description" content="Threat Detection Report by Kwasi M. Kontor — real SSH brute-force telemetry from a self-hosted Wazuh SOC lab, a live detection-engineering bug found and fixed during the report's own data-gathering, and MITRE ATT&CK-mapped findings. Blue team portfolio.">
+  <link rel="icon" type="image/png" href="https://kontor.studio/kataleya-demo/assets/favicon.png">
+  <style>
+    :root{--bg:#080809;--ph:#c8f563;--ph-dim:rgba(200,245,99,0.55);--ph-faint:rgba(200,245,99,0.22);--ph-rgb:200,245,99;--text:rgba(226,224,220,0.88);--dim:rgba(226,224,220,0.45);--rule:rgba(200,245,99,0.14);--surface:rgba(200,245,99,0.04);}
+    [data-phase="nyx"]{--ph:#eb6f92;--ph-dim:rgba(235,111,146,0.55);--ph-faint:rgba(235,111,146,0.22);--ph-rgb:235,111,146;--rule:rgba(235,111,146,0.14);--surface:rgba(235,111,146,0.04);}
+    [data-phase="desire"]{--ph:#f6c177;--ph-dim:rgba(246,193,119,0.55);--ph-faint:rgba(246,193,119,0.22);--ph-rgb:246,193,119;--rule:rgba(246,193,119,0.14);--surface:rgba(246,193,119,0.04);}
+    [data-phase="still-pine"]{--ph:#9ccfd8;--ph-dim:rgba(156,207,216,0.55);--ph-faint:rgba(156,207,216,0.22);--ph-rgb:156,207,216;--rule:rgba(156,207,216,0.14);--surface:rgba(156,207,216,0.04);}
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html,body{background:var(--bg);color:var(--text);font-family:'Courier New',Courier,monospace;font-size:13px;line-height:1.7;min-height:100vh;}
+    a{color:inherit;text-decoration:none;}
+    .wrap{max-width:780px;margin:0 auto;padding:32px 24px 100px;}
+    .boot{margin-bottom:44px;}
+    .boot-line{font-size:11px;letter-spacing:1.5px;color:var(--ph-faint);line-height:1.9;}
+    .boot-phase{color:var(--ph-dim);}
+    .boot-rule{border:none;border-top:1px solid var(--rule);margin:10px 0;}
+    .boot-nav{display:flex;justify-content:space-between;align-items:center;font-size:10px;letter-spacing:1.5px;color:var(--ph-faint);flex-wrap:wrap;gap:6px;}
+    .boot-back{transition:color .2s;}.boot-back:hover{color:var(--ph);}
+    .art-head{margin-bottom:40px;}
+    .art-cmd{font-size:11px;color:var(--ph-faint);margin-bottom:18px;}
+    .art-cmd .prompt{color:var(--ph-dim);}
+    .art-id{font-size:10px;letter-spacing:3px;color:var(--ph-dim);margin-bottom:8px;}
+    .art-title{font-size:clamp(14px,2.8vw,20px);letter-spacing:2px;text-transform:uppercase;color:var(--ph);line-height:1.35;margin-bottom:18px;}
+    .art-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:24px;}
+    .tag{font-size:8px;letter-spacing:2px;padding:2px 9px;border:1px solid var(--rule);color:var(--ph-faint);}
+    .tag-threat{border-color:rgba(235,111,146,0.28);color:rgba(235,111,146,0.65);}
+    .tag-live{border-color:rgba(234,154,151,0.25);color:rgba(234,154,151,0.6);}
+    .ioc-block{border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:14px 0;font-size:11.5px;}
+    .ioc-row{display:flex;margin-bottom:3px;line-height:1.65;}
+    .ioc-key{min-width:150px;color:var(--ph-faint);letter-spacing:.5px;flex-shrink:0;}
+    .ioc-val{color:var(--ph-dim);}
+    .ioc{color:#eb6f92;}
+    .section{margin-bottom:38px;}
+    .sec-head{display:flex;align-items:center;gap:12px;font-size:9.5px;letter-spacing:2.5px;color:var(--ph-dim);text-transform:uppercase;margin-bottom:16px;}
+    .sec-head::after{content:'';flex:1;height:1px;background:var(--rule);}
+    .callout{margin:22px 0;padding:12px 16px;border-left:2px solid var(--ph-dim);background:var(--surface);font-size:12px;color:var(--ph-faint);line-height:1.9;}
+    .callout-tag{font-size:8.5px;letter-spacing:2px;color:var(--ph-dim);margin-bottom:7px;}
+    .callout-warn{border-left-color:#eb6f92;}
+    .callout-warn .callout-tag{color:#eb6f92;}
+    .code-block{margin:22px 0;}
+    .code-hd{font-size:9px;letter-spacing:2px;color:var(--ph-faint);text-transform:uppercase;padding-bottom:8px;border-bottom:1px solid var(--rule);}
+    pre{font-family:'Courier New',Courier,monospace;font-size:11.5px;line-height:1.8;white-space:pre;overflow-x:auto;color:var(--text);padding:16px 0 12px;border-bottom:1px solid var(--rule);}
+    .xml-tag{color:#9ccfd8;}.xml-attr{color:#f6c177;}.xml-val{color:rgba(200,245,99,0.55);}
+    .findings-table{width:100%;border-collapse:collapse;font-size:11.5px;margin-top:4px;}
+    .findings-table th{font-size:8px;letter-spacing:2px;color:var(--ph-faint);padding:0 0 8px;text-align:left;text-transform:uppercase;border-bottom:1px solid var(--rule);}
+    .findings-table td{padding:10px 0;border-bottom:1px solid rgba(200,245,99,0.06);color:var(--ph-faint);}
+    .findings-table tr:last-child td{border-bottom:none;}
+    .intel-block{margin:22px 0;padding:14px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);}
+    .intel-cmd{font-size:10px;letter-spacing:1.5px;color:var(--ph-faint);margin-bottom:12px;}
+    .intel-cmd::before{content:'> ';color:var(--ph-dim);}
+    .intel-row{display:flex;font-size:11.5px;margin-bottom:4px;line-height:1.65;}
+    .intel-key{min-width:190px;color:var(--ph-faint);flex-shrink:0;}
+    .intel-val{color:var(--ph-dim);}
+    .intel-note{margin-top:14px;padding:10px 14px;border-left:2px solid var(--rule);font-size:11px;color:var(--ph-faint);line-height:1.85;}
+    .timeline{list-style:none;padding:0;counter-reset:step;}
+    .timeline li{position:relative;padding-left:28px;margin-bottom:20px;font-size:12px;color:var(--dim);line-height:1.85;}
+    .timeline li::before{counter-increment:step;content:counter(step);position:absolute;left:0;top:0;width:18px;height:18px;border:1px solid var(--rule);color:var(--ph-dim);font-size:10px;display:flex;align-items:center;justify-content:center;}
+    .timeline .step-title{color:var(--ph-faint);letter-spacing:.5px;margin-bottom:4px;}
+    .conclusion-block{padding:14px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);}
+    .conclusion-row{display:flex;margin-bottom:4px;font-size:11.5px;line-height:1.65;}
+    .conclusion-key{min-width:210px;color:var(--ph-faint);flex-shrink:0;}
+    .conclusion-val{color:var(--ph-dim);}
+    .lessons{list-style:none;padding:0;}
+    .lessons li{display:flex;gap:12px;font-size:12.5px;color:var(--dim);margin-bottom:16px;line-height:1.9;align-items:flex-start;}
+    .lessons li::before{content:'▸';color:var(--ph-dim);flex-shrink:0;padding-top:2px;}
+    .refs{list-style:none;padding:0;}
+    .refs li{font-size:11px;color:var(--dim);margin-bottom:10px;line-height:1.8;padding-left:18px;text-indent:-18px;}
+    .foot{margin-top:60px;border-top:1px solid var(--rule);padding-top:16px;display:flex;justify-content:space-between;font-size:9px;letter-spacing:1.5px;color:var(--ph-faint);flex-wrap:wrap;gap:8px;}
+    .foot a:hover{color:var(--ph-dim);}
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <div style="text-align:center;padding:20px 0 8px;">
+    <a href="https://kwasikontor.dev" target="_blank" rel="noopener noreferrer">
+      <img src="https://kontor.studio/butterfly-dna.gif" alt="Kwasi M. Kontor" style="width:72px;height:72px;border-radius:50%;display:block;margin:0 auto;filter:drop-shadow(0 0 14px rgba(200,245,99,0.2));" />
+    </a>
+  </div>
+
+  <div class="boot">
+    <div class="boot-line">SYSTEM: BLUE_TEAM_ARCHIVE ▸ REPORTS _</div>
+    <div class="boot-line"><span id="phase-label" class="boot-phase"></span>STATE: ADAPTIVE_SYNC ☿⚕</div>
+    <hr class="boot-rule">
+    <div class="boot-nav">
+      <a class="boot-back" href="../index.html">← back to portfolio</a>
+      <span>KONTOR BLUE TEAM // 2026-07-16</span>
+    </div>
+  </div>
+
+  <div class="art-head">
+    <div class="art-cmd"><span class="prompt">$ </span>arc read TDR-001 --format=report</div>
+    <div class="art-id">TDR-001</div>
+    <div class="art-title">SSH Brute Force — Threat Detection Report</div>
+    <div class="art-tags">
+      <span class="tag">FILED</span>
+      <span class="tag tag-threat">T1110 · BRUTE FORCE</span>
+      <span class="tag tag-live">LIVE LAB DATA</span>
+    </div>
+    <div class="ioc-block">
+      <div class="ioc-row"><span class="ioc-key">DATA SOURCE</span><span class="ioc-val">Wazuh 4.14.6 · self-hosted SOC lab (AWS)</span></div>
+      <div class="ioc-row"><span class="ioc-key">WINDOW</span><span class="ioc-val">30-day trailing · captured 2026-07-16</span></div>
+      <div class="ioc-row"><span class="ioc-key">MITRE TECHNIQUE</span><span class="ioc-val">T1110 — Brute Force (T1110.001 Password Guessing)</span></div>
+      <div class="ioc-row"><span class="ioc-key">RELATED</span><span class="ioc-val"><a href="../hunts/HUNT-002.html" style="text-decoration:underline;">HUNT-002 — live SSH honeypot adversary</a></span></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-head">[ purpose ]</div>
+    <div class="callout">
+      <div class="callout-tag">SCOPE</div>
+      Structured after Red Canary's annual Threat Detection Report — methodology, prevalence data, and technique-level findings — but scoped down to a single lab instead of an enterprise telemetry pool of 30,000+ confirmed threats. This report doesn't try to reproduce that scale; it applies the same discipline (real data, verified claims, MITRE-mapped findings) to what's actually observable from one self-hosted SOC. Individual incidents get their own write-ups elsewhere in this portfolio (HUNT-002, IRP-001) — this report's job is to synthesize the detection layer itself: what's actually firing, what silently isn't, and why.
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-head">[ methodology ]</div>
+    <p style="color:var(--dim);font-size:12px;line-height:1.9;">
+      Detections are generated by Wazuh's rule engine against host-forwarded syslog (sshd auth events) from two agents. Stock SSH ruleset (<span class="ioc">0095-sshd_rules.xml</span>) handles baseline classification; two custom correlation rules (<span class="ioc">100010</span>/<span class="ioc">100011</span>, built during an earlier hands-on exercise) fire when the same source IP produces 3+ auth failures within a 2-minute window — a lower, more sensitive threshold than Wazuh's stock equivalents (8 in 120s). All figures below are pulled directly from the live OpenSearch indices (<span class="ioc">wazuh-alerts-*</span>), not estimated.
+    </p>
+  </div>
+
+  <div class="section">
+    <div class="sec-head">[ 30-day findings ]</div>
+    <table class="findings-table">
+      <tr><th>Rule</th><th style="padding-left:16px;">Description</th><th style="padding-left:16px;">Count</th></tr>
+      <tr>
+        <td><span class="ioc">5715</span></td>
+        <td style="padding-left:16px;">sshd: login denied (access-control rejection, pre-auth)</td>
+        <td style="padding-left:16px;">307</td>
+      </tr>
+      <tr>
+        <td><span class="ioc">5710</span></td>
+        <td style="padding-left:16px;">sshd: attempt to login using a non-existent user</td>
+        <td style="padding-left:16px;">10</td>
+      </tr>
+      <tr>
+        <td><span class="ioc">100010</span> / <span class="ioc">100011</span></td>
+        <td style="padding-left:16px;">Custom correlation — 3+ failures/2min, same source</td>
+        <td style="padding-left:16px;">0</td>
+      </tr>
+    </table>
+    <div class="callout" style="margin-top:20px;">
+      <div class="callout-tag">READING THE ZERO</div>
+      Zero correlated alerts isn't an absence of signal — it's perimeter controls (security groups, fail2ban) intercepting most attempts before they reach sshd's auth stage at all, and the nonexistent-user attempts that do land (10 over 30 days) haven't yet clustered tightly enough from a single source to cross the 3-in-120s threshold. That threshold is deliberately tuned to catch a genuine burst, not isolated scanning noise — this is the detector behaving correctly, not silently failing. (The real silent failure was somewhere else — see below.)
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-head">[ detection engineering: the real bug ]</div>
+    <div class="callout callout-warn">
+      <div class="callout-tag">FINDING</div>
+      Rule <span class="ioc">100011</span> — the correlation rule meant to catch repeated wrong-password attempts against a <em>real</em> username, arguably the more common brute-force pattern — has never actually been able to fire, since it was first written. Confirmed live during this report's own data-gathering, not assumed from the zero count above.
+    </div>
+    <ol class="timeline">
+      <li>
+        <div class="step-title">ROOT CAUSE</div>
+        Rule 100011 depended on <span class="ioc">if_matched_sid=5716</span> — the stock rule for a generic "Failed" auth line. But Wazuh's engine always resolves an event to the <em>deepest matching rule</em> in the tree, and real "Failed password" log lines also match a more specific child rule, <span class="ioc">5760</span>. In practice, every genuine wrong-password attempt classified as 5760, never 5716 — so 100011's dependency was never satisfied.
+      </li>
+      <li>
+        <div class="step-title">VERIFICATION, NOT ASSUMPTION</div>
+        Confirmed via <span class="ioc">wazuh-logtest</span> against realistic log lines (not synthetic ones — OpenSSH's actual phrasing matters here): a plain "Failed password for &lt;user&gt;" line resolved to rule 5760, not 5716, exactly as suspected.
+      </li>
+      <li>
+        <div class="step-title">FIX</div>
+        <div class="code-block">
+          <div class="code-hd">local_rules.xml · diff</div>
+          <pre>  &lt;rule <span class="xml-attr">id</span>=<span class="xml-val">"100011"</span> <span class="xml-attr">level</span>=<span class="xml-val">"10"</span> <span class="xml-attr">frequency</span>=<span class="xml-val">"3"</span> <span class="xml-attr">timeframe</span>=<span class="xml-val">"120"</span>&gt;
+-   &lt;<span class="xml-tag">if_matched_sid</span>&gt;5716&lt;/<span class="xml-tag">if_matched_sid</span>&gt;
++   &lt;<span class="xml-tag">if_matched_sid</span>&gt;5760&lt;/<span class="xml-tag">if_matched_sid</span>&gt;
+    &lt;<span class="xml-tag">same_source_ip</span> /&gt;</pre>
+        </div>
+      </li>
+      <li>
+        <div class="step-title">RE-VERIFIED</div>
+        Fed 3 correlated failed-login events (same source, 20s apart) through <span class="ioc">wazuh-logtest</span> against the patched ruleset — rule 100011 fired as designed: <span class="ioc">"Alert to be generated."</span> Deployed via <span class="ioc">systemctl restart wazuh-manager</span>, and backported into the lab's Ansible playbook (it had only ever been applied live over SSH — a rebuild would have silently lost it).
+      </li>
+    </ol>
+  </div>
+
+  <div class="section">
+    <div class="sec-head">[ technique context ]</div>
+    <div class="intel-block">
+      <div class="intel-cmd">mitre attack --technique T1110.001</div>
+      <div class="intel-row"><span class="intel-key">TECHNIQUE</span><span class="intel-val">T1110.001 — Password Guessing</span></div>
+      <div class="intel-row"><span class="intel-key">TACTIC</span><span class="intel-val">Credential Access</span></div>
+      <div class="intel-row"><span class="intel-key">RELATED</span><span class="intel-val">T1021.004 — Remote Services: SSH</span></div>
+      <div class="intel-row"><span class="intel-key">DATA SOURCE</span><span class="intel-val">Command: Command Execution · Logon Session: Logon Session Creation</span></div>
+      <div class="intel-note">HUNT-002 already documents a live external adversary against this same technique (20.97.163.85, 12 attempts/min, Azure-hosted). This report doesn't re-run that analysis — it's the detection layer underneath it: without a correctly-firing 100011, an attacker using real usernames with guessed passwords (a more patient, quieter pattern than HUNT-002's brute honeypot traffic) would have gone uncorrelated indefinitely.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-head">[ conclusion ]</div>
+    <div class="conclusion-block">
+      <div class="conclusion-row"><span class="conclusion-key">RULES AUDITED</span><span class="conclusion-val">2 (100010, 100011)</span></div>
+      <div class="conclusion-row"><span class="conclusion-key">SILENTLY BROKEN</span><span class="conclusion-val" style="color:#eb6f92;">1 of 2 (100011) — since original build</span></div>
+      <div class="conclusion-row"><span class="conclusion-key">FIX VERIFIED</span><span class="conclusion-val">wazuh-logtest, pre- and post-patch</span></div>
+      <div class="conclusion-row"><span class="conclusion-key">INFRA-AS-CODE</span><span class="conclusion-val">Backported to Ansible — first time either rule existed there</span></div>
+      <div class="conclusion-row"><span class="conclusion-key">COST DISCIPLINE</span><span class="conclusion-val">Manager started for data pull, stopped immediately after (~$0.09/hr avoided)</span></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-head">[ lessons learned ]</div>
+    <ul class="lessons">
+      <li><div>A rule that passes config syntax check and "looks" deployed isn't the same as a rule that's verified to actually fire — 100011 sat silently broken through the entire original exercise because nothing forced a real-log verification pass.</div></li>
+      <li><div>Wazuh's "deepest matching rule wins" behavior is a real gotcha when building correlation rules on top of stock sids — always trace which specific child rule a realistic log line actually resolves to, don't assume the parent sid you read about is the one that fires in practice.</div></li>
+      <li><div>Infra-as-code drift is invisible until you go looking: two custom detection rules existed only as live, unversioned changes on the box for over a day before this report's data-gathering surfaced and closed that gap.</div></li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <div class="sec-head">[ sources ]</div>
+    <ul class="refs">
+      <li>Red Canary. (2022). <em>2022 threat detection report</em>. Red Canary. https://redcanary.com/threat-detection-report/</li>
+      <li>MITRE ATT&CK. (n.d.). <em>T1110.001 — Password guessing</em>. The MITRE Corporation. https://attack.mitre.org/techniques/T1110/001/</li>
+      <li>Wazuh. (n.d.). <em>Ruleset documentation — rule correlation</em>. Wazuh Inc. https://documentation.wazuh.com/current/user-manual/ruleset/</li>
+    </ul>
+  </div>
+
+  <div class="foot">
+    <span>KONTOR BLUE TEAM · TDR-001</span>
+    <span>
+      <a href="../index.html">← back to portfolio</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/kwasikontor45/wazuh-soc-lab/commit/b5df5de" target="_blank" rel="noopener">VIEW_FIX ↗</a>
+    </span>
+  </div>
+
+</div>
+<script>
+  !function(){
+    var h=new Date().getHours();
+    var p=(h>=21||h<6)?'nyx':h<11?'choice':h<17?'desire':'still-pine';
+    document.documentElement.setAttribute('data-phase',p);
+    var el=document.getElementById('phase-label');
+    if(el) el.textContent=p+'·';
+  }();
+</script>
+</body>
+</html>
